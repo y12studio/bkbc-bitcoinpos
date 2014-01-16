@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BKBC Bitcoin POS</string>
+    <string name="dummy_button">付款</string>
+    <string name="dummy_content">比特幣收銀機\nTWD ONLY</string>
+
+</resources>
