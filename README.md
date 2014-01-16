@@ -3,4 +3,4 @@ bkbc-bitcoinpos
 
 Bitcoin POS(TWD)
 
-修改現有 app 讓商家輸出請款 QR 畫面。
+android tv app 讓商家用1.5k的電視棒接到 HDMI 電視當輸出請款 QR 畫面。錢包採用離線本地存放，不使用線上錢包。
