@@ -1,14 +1,38 @@
+/*
+ * Copyright 2013 Y12STUDIO
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.blackbananacoin.bitcoin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
+import org.blackbananacoin.bitcoin.util.DownloadExchange;
 import org.blackbananacoin.bitcoin.util.SystemUiHider;
+import org.blackbananacoin.bitcoin.util.UI;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -45,6 +69,37 @@ public class FullscreenActivity extends Activity {
 	 */
 	private SystemUiHider mSystemUiHider;
 
+	private Handler _handler = new Handler();
+
+	private DownloadExchange dl = new DownloadExchange();
+
+	private Runnable runForDownlaodInfo = new Runnable() {
+
+		public void run() {
+			try {
+				runDownloadExchange();
+			} catch (Exception ex) {
+
+			} finally {
+				_handler.postDelayed(this, UI.TimeDownloadInterval);
+			}
+		}
+	};
+
+	public void runDownloadExchange() {
+		TwdBit twdbit = dl.getExchange();
+		checkNotNull(twdbit);
+		updateNewExchange(twdbit);
+	}
+
+	OnClickListener clDebug = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			runDownloadExchange();
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -53,6 +108,9 @@ public class FullscreenActivity extends Activity {
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
+		tvMbtcTwd = (TextView) findViewById(R.id.mbtctwd);
+
+		findViewById(R.id.imgView1).setOnClickListener(clDebug);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -116,6 +174,13 @@ public class FullscreenActivity extends Activity {
 		// while interacting with the UI.
 		findViewById(R.id.dummy_button).setOnTouchListener(
 				mDelayHideTouchListener);
+		_handler.postDelayed(runForDownlaodInfo, 1000);
+	}
+
+	protected void updateNewExchange(TwdBit twdbit) {
+		// t("" + twdbit.getBtctwd());
+		checkNotNull(twdbit);
+		tvMbtcTwd.setText(UI.DFMT_2D.format(twdbit.getBtctwd() / 1000d));
 	}
 
 	@Override
@@ -151,6 +216,8 @@ public class FullscreenActivity extends Activity {
 		}
 	};
 
+	private TextView tvMbtcTwd;
+
 	/**
 	 * Schedules a call to hide() in [delay] milliseconds, canceling any
 	 * previously scheduled calls.
@@ -158,5 +225,34 @@ public class FullscreenActivity extends Activity {
 	private void delayedHide(int delayMillis) {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+	}
+
+	private void t(String msg) {
+		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_0:
+			// some numpad show 144.
+			t("0");
+			break;
+		case KeyEvent.KEYCODE_1:
+			// some numpad show 145.
+			t("1");
+			break;
+		case KeyEvent.KEYCODE_2:
+			t("2");
+			break;
+		case KeyEvent.KEYCODE_ENTER:
+			// some numpad show 160.
+			t("ENTER");
+			break;
+		default:
+			break;
+		}
+		t("" + keyCode);
+		return true;
 	}
 }
