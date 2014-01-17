@@ -13,38 +13,39 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:gravity="center_horizontal">
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:text="比特幣收銀機  Bitcoin POS"
-                android:layout_margin="10dp"
-                android:textSize="60dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="60dp" />
         </LinearLayout>
-        
-          <LinearLayout
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:gravity="center_horizontal">
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="mBTCTWD"
                 android:layout_margin="10dp"
-                android:textSize="60dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:text="mBTCTWD"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="60dp" />
+
             <TextView
                 android:id="@+id/mbtctwd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-.-"
                 android:layout_margin="10dp"
-                android:textSize="60dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
+                android:text="-.-"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="60dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -53,6 +54,18 @@
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:orientation="horizontal" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="30dp"
+                android:gravity="center_vertical"
+                android:orientation="vertical" >
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/icon_m1" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -100,7 +113,6 @@
                     android:src="@drawable/qrcode_p131225" />
             </LinearLayout>
         </LinearLayout>
-
     </LinearLayout>
 
     <FrameLayout

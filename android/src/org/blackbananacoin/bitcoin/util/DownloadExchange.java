@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.blackbananacoin.bitcoin.TwdBit;
+import org.blackbananacoin.common.json.TwdBit;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

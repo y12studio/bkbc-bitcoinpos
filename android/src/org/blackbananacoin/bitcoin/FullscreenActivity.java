@@ -18,9 +18,11 @@ package org.blackbananacoin.bitcoin;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import org.blackbananacoin.bitcoin.util.AddressBlockChainWatcher;
 import org.blackbananacoin.bitcoin.util.DownloadExchange;
 import org.blackbananacoin.bitcoin.util.SystemUiHider;
 import org.blackbananacoin.bitcoin.util.UI;
+import org.blackbananacoin.common.json.TwdBit;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -72,6 +74,7 @@ public class FullscreenActivity extends Activity {
 	private Handler _handler = new Handler();
 
 	private DownloadExchange dl = new DownloadExchange();
+	private AddressBlockChainWatcher addrWatcher = new AddressBlockChainWatcher();
 
 	private Runnable runForDownlaodInfo = new Runnable() {
 
@@ -96,7 +99,8 @@ public class FullscreenActivity extends Activity {
 
 		@Override
 		public void onClick(View v) {
-			runDownloadExchange();
+			// runDownloadExchange();
+			addrWatcher.createWebsocket();
 		}
 	};
 
