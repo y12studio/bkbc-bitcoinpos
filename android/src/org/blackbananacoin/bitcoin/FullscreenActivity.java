@@ -18,13 +18,19 @@ package org.blackbananacoin.bitcoin;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import java.io.IOException;
 import java.util.EnumMap;
 
 import org.blackbananacoin.bitcoin.util.AddressBlockChainWatcher;
-import org.blackbananacoin.bitcoin.util.DownloadExchange;
+import org.blackbananacoin.bitcoin.util.DownloadBcTx;
+import org.blackbananacoin.bitcoin.util.DownloadBkbcEx;
 import org.blackbananacoin.bitcoin.util.SystemUiHider;
 import org.blackbananacoin.bitcoin.util.UI;
 import org.blackbananacoin.common.bitcoin.Bitcoins;
+import org.blackbananacoin.common.json.BcApiSingleAddrTx;
+import org.blackbananacoin.common.json.BcApiSingleAddrTxItem;
+import org.blackbananacoin.common.json.BcApiSingleAddress;
+import org.blackbananacoin.common.json.BcApiSingleAddressBuilder;
 import org.blackbananacoin.common.json.TwdBit;
 
 import com.google.zxing.BarcodeFormat;
@@ -36,6 +42,8 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -84,15 +92,21 @@ public class FullscreenActivity extends Activity {
 
 	private Handler _handler = new Handler();
 
-	private DownloadExchange dl = new DownloadExchange();
+	private DownloadBkbcEx dlBkbcEx = new DownloadBkbcEx();
+	private DownloadBcTx dlBcTx = new DownloadBcTx();
 	private AddressBlockChainWatcher addrWatcher = new AddressBlockChainWatcher();
 	private QrCodeEncoder qrcodeEncoder = new QrCodeEncoder();
+	private BcApiSingleAddressBuilder builderBcTx = new BcApiSingleAddressBuilder();
+
+	private SoundPool spool;
+	private int soundID;
+	private int debugRunCount = 0;
 
 	private Runnable runForDownlaodInfo = new Runnable() {
 
 		public void run() {
 			try {
-				inRunDownloadExchange();
+				inRunDownloadBkbcEx();
 			} catch (Exception ex) {
 
 			} finally {
@@ -114,10 +128,69 @@ public class FullscreenActivity extends Activity {
 		}
 	};
 
-	public void inRunDownloadExchange() {
-		TwdBit twdbit = dl.getExchange();
+	private Runnable runForBcTxVerify = new Runnable() {
+
+		public void run() {
+			try {
+				if (UI.mockBcTxCheck) {
+					testBcApiMock();
+				} else {
+					BcApiSingleAddress addrResult = dlBcTx
+							.getSingleAddrResult();
+					inRunDownloadBcApiTx(addrResult);
+				}
+			} catch (Exception ex) {
+				// how to know check fail
+				t("交易確認無法完成，請等下一次確認。");
+
+			} finally {
+				_handler.postDelayed(this, UI.TimeBcTxVerifyInterval);
+			}
+		}
+	};
+
+	private int lastNtx = 0;
+
+	private long lastBcApiCheckTime;
+
+	public void inRunDownloadBkbcEx() {
+		TwdBit twdbit = dlBkbcEx.getExchange();
 		checkNotNull(twdbit);
 		updateExchange(twdbit);
+	}
+
+	public void inRunDownloadBcApiTx(BcApiSingleAddress addrResult) {
+		this.lastBcApiCheckTime = System.currentTimeMillis();
+		checkNotNull(addrResult);
+		int ntx = addrResult.getN_tx();
+		// check ntx
+		UI.logv("BcApi addr=" + addrResult.getAddress() + ",ntx="
+				+ addrResult.getN_tx());
+		if (ntx > lastNtx) {
+			BcApiSingleAddrTx lastTx = builderBcTx.getLastTx(addrResult);
+			checkNotNull(lastTx);
+			UI.logv("Ntx change.");
+			updateNtxChange(lastTx);
+			this.lastNtx = ntx;
+		} else {
+			if (!lyBkbcEx.isShown()) {
+				lyBcApiTxCheck.setVisibility(View.GONE);
+				lyBkbcEx.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+
+	private void updateNtxChange(BcApiSingleAddrTx lastTx) {
+		playSound();
+		lyBcApiTxCheck.setVisibility(View.VISIBLE);
+		lyBkbcEx.setVisibility(View.GONE);
+		BcApiSingleAddrTxItem item = lastTx.getFirstTxInputItem();
+		double btc = item.getValue() / Bitcoins.COIN;
+		String btcStr = String.format("%.8f BTC", btc);
+		String addr = item.getAddr();
+		UI.logv("last input addr=" + addr + "/btc=" + btcStr);
+		tvBcTxCheckAmount.setText(btcStr);
+		tvBcTxCheckAddr.setText("地址末六碼**" + addr.substring(addr.length() - 6));
 	}
 
 	protected void inRunRefresh() {
@@ -125,10 +198,44 @@ public class FullscreenActivity extends Activity {
 			long diffs = (System.currentTimeMillis() - lastUpdateTime) / 1000;
 			int min = (int) (diffs / 60);
 			int sec = (int) (diffs % 60);
-			tvUpdateStatus.setText(String.format("%s分%s秒前更新", min, sec));
+			tvUpdateStatus.setText(String.format("%d分%d秒前更新", min, sec));
 		} else {
 			tvUpdateStatus.setText("首次更新");
 		}
+
+		// 下次交易檢查x秒
+		int nextCheckTime = 0;
+		if (lastBcApiCheckTime > 0) {
+			long diffms = System.currentTimeMillis() - lastBcApiCheckTime;
+			nextCheckTime = (int) ((UI.TimeBcTxVerifyInterval - diffms) / 1000);
+		}
+		tvBcTxCheckTime.setText(String.format("下次交易檢查%d秒", nextCheckTime));
+
+	}
+
+	private void playSound() {
+		AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		float volume = (float) audioManager
+				.getStreamVolume(AudioManager.STREAM_MUSIC);
+		android.util.Log.v(
+				"SOUND",
+				"[" + volume + "]["
+						+ spool.play(soundID, volume, volume, 1, 0, 1f) + "]");
+	}
+
+	private void testBcApiMock() {
+		debugRunCount++;
+		try {
+			BcApiSingleAddress addrDemo = builderBcTx.buildDemo();
+			if (debugRunCount % 2 == 0) {
+				// make fake transcation
+				addrDemo.setN_tx(this.lastNtx + 1);
+			}
+			inRunDownloadBcApiTx(addrDemo);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	OnClickListener clDebug = new OnClickListener() {
@@ -143,7 +250,12 @@ public class FullscreenActivity extends Activity {
 	private ImageView imgQrBcAddr;
 
 	private TextView tvAmount;
+	private TextView tvBcTxCheckAddr;
+	private TextView tvBcTxCheckAmount;
+	private TextView tvBcTxCheckTime;
 	private TextView tvUpdateStatus;
+	private View lyBkbcEx;
+	private View lyBcApiTxCheck;
 	private long lastUpdateTime;
 
 	@Override
@@ -154,9 +266,14 @@ public class FullscreenActivity extends Activity {
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
+		lyBcApiTxCheck = findViewById(R.id.lyBcTxCheckInfo);
+		lyBkbcEx = findViewById(R.id.lyBkbcExInfo);
 		tvMbtcTwd = (TextView) findViewById(R.id.tvBtcTwdInfo);
 		tvAmount = (TextView) findViewById(R.id.tvAmount);
 		tvUpdateStatus = (TextView) findViewById(R.id.tvUpdateStatus);
+		tvBcTxCheckAmount = (TextView) findViewById(R.id.tvBcTxAmount);
+		tvBcTxCheckAddr = (TextView) findViewById(R.id.tvBcTxAddr);
+		tvBcTxCheckTime = (TextView) findViewById(R.id.tvBcTxCheckTime);
 
 		imgQr1 = (ImageView) findViewById(R.id.imgQr1);
 		imgQrBcAddr = (ImageView) findViewById(R.id.imgQrBcAddr);
@@ -226,13 +343,22 @@ public class FullscreenActivity extends Activity {
 				mDelayHideTouchListener);
 
 		_handler.postDelayed(runForDownlaodInfo, 1000);
+
 		_handler.postDelayed(runForRefreshInfo, 5000);
 
+		if (UI.ENABLE_POLL_INTERVAL_BCAPI_TX_CHECK) {
+			_handler.postDelayed(runForBcTxVerify, 15000);
+		}
+
 		updateQrCodeBlockchainAddrQuery();
+
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
+		spool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+		soundID = spool.load(this, R.raw.kirby_style_laser, 1);
 	}
 
 	private void updateQrCodeBlockchainAddrQuery() {
-		String content = UI.BC_URL_ADDR_PREFIX + UI.BITCOIN_ADDR_TEST;
+		String content = UI.BC_URL_ADDR_PREFIX + UI.BITCOIN_ADDR_MOTOR1;
 		int dimention = 500;
 		int width = 500;
 		int height = 500;
@@ -270,7 +396,7 @@ public class FullscreenActivity extends Activity {
 	}
 
 	private void updatePriceQrCode(double amount) {
-		String content = Bitcoins.buildUri(UI.BITCOIN_ADDR_TEST, amount);
+		String content = Bitcoins.buildUri(UI.BITCOIN_ADDR_MOTOR1, amount);
 		int dimention = 500;
 		int width = 500;
 		int height = 500;

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 Y12STUDIO
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.blackbananacoin.bitcoin.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -14,6 +29,10 @@ import com.koushikdutta.async.http.AsyncHttpClient.WebSocketConnectCallback;
 import com.koushikdutta.async.http.WebSocket;
 import com.koushikdutta.async.http.WebSocket.StringCallback;
 
+/**
+ * @author
+ *
+ */
 public class AddressBlockChainWatcher {
 	
 	public static final String TESTONLY_ADDR = "1bonesBjs3DQUbx4wxPQwrbwCkNjWtLB4";

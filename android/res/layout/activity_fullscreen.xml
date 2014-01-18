@@ -114,7 +114,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center|center_vertical"
+                android:gravity="center"
                 android:orientation="vertical" >
 
                 <TextView
@@ -132,19 +132,70 @@
                     android:layout_height="160dp"
                     android:src="@drawable/qrcode_bkbc_twdbtc_url" />
 
-                <TextView
+                <LinearLayout
+                    android:id="@+id/lyBkbcExInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="匯率說明"
-                    android:textColor="#33b5e5"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical" >
 
-                <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:src="@drawable/qrcode_bkbc_twdbtc_url" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="匯率說明"
+                        android:textColor="#33b5e5"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:src="@drawable/qrcode_bkbc_twdbtc_url" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/lyBcTxCheckInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="gone" >
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="最新交易"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
+                    
+                    <TextView
+                    android:id="@+id/tvBcTxAddr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="TxAddr"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                    android:id="@+id/tvBcTxAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="0.00BTC"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvBcTxCheckTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="下次交易檢查x秒"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

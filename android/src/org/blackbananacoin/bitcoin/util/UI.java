@@ -23,16 +23,20 @@ import android.util.Log;
 public class UI {
 
 	private static final String ACTIVITY_TAG = "BKBC_BitCoinPOS";
-	public static final String BITCOIN_ADDR_TEST = "1UTJhfBLWW48eSKTZpTFGU8na4K4QSCo2";
+	public static final String BITCOIN_ADDR_MOTOR1 = "1UTJhfBLWW48eSKTZpTFGU8na4K4QSCo2";
 	public static final String BC_URL_ADDR_PREFIX = "https://blockchain.info/address/";
 	public static final float FEE_RATE_SRV_PERCENT = 3.0f;
 	public static final int TWD_SRV = 150;
 
 	public static final long TimeDownloadInterval = 5 * 60 * 1000;
-	public static final long TimeRefreshInterval = 31 * 1000;
+	public static final long TimeRefreshInterval = 5 * 1000;
+	public static final long TimeBcTxVerifyInterval = 3 * 60 * 1000;
 
 	public static final NumberFormat DFMT_INT = new DecimalFormat("#,###");
 	public static final NumberFormat DFMT_2D = new DecimalFormat("#,###.##");
+	
+	public static boolean mockBcTxCheck = false;
+	public static boolean ENABLE_POLL_INTERVAL_BCAPI_TX_CHECK = false;
 
 	public static void logd(String log) {
 		Log.d(ACTIVITY_TAG, log);

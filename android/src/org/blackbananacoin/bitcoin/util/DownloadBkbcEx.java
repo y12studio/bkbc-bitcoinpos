@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.blackbananacoin.common.json.TwdBit;
+import org.blackbananacoin.common.json.TwdJsonBuilder;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,12 +28,11 @@ import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.AsyncHttpResponse;
 
-public class DownloadExchange {
+public class DownloadBkbcEx {
 
 	public static final String EXURL = "http://blackbananacoin.org/json/twdbtc.json";
-
-	private Gson gson = new GsonBuilder().setDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssz").create();
+	
+	private TwdJsonBuilder builder = new TwdJsonBuilder();
 
 	public TwdBit getExchange() {
 		UI.logv("Start download json from url" + EXURL);
@@ -50,12 +50,11 @@ public class DownloadExchange {
 					}
 
 				});
-
+		
 		TwdBit tb = null;
-
 		try {
-			String haha = xx.get(5, TimeUnit.SECONDS);
-			tb = gson.fromJson(haha, TwdBit.class);
+			String json = xx.get(5, TimeUnit.SECONDS);
+			tb = builder.toTwdBit(json);
 			UI.logv("parse=" + tb.toString());
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
