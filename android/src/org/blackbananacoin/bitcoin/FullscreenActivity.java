@@ -18,14 +18,24 @@ package org.blackbananacoin.bitcoin;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import java.util.EnumMap;
+
 import org.blackbananacoin.bitcoin.util.AddressBlockChainWatcher;
 import org.blackbananacoin.bitcoin.util.DownloadExchange;
 import org.blackbananacoin.bitcoin.util.SystemUiHider;
 import org.blackbananacoin.bitcoin.util.UI;
+import org.blackbananacoin.common.bitcoin.Bitcoins;
 import org.blackbananacoin.common.json.TwdBit;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,6 +43,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,12 +86,13 @@ public class FullscreenActivity extends Activity {
 
 	private DownloadExchange dl = new DownloadExchange();
 	private AddressBlockChainWatcher addrWatcher = new AddressBlockChainWatcher();
+	private QrCodeEncoder qrcodeEncoder = new QrCodeEncoder();
 
 	private Runnable runForDownlaodInfo = new Runnable() {
 
 		public void run() {
 			try {
-				runDownloadExchange();
+				inRunDownloadExchange();
 			} catch (Exception ex) {
 
 			} finally {
@@ -89,10 +101,34 @@ public class FullscreenActivity extends Activity {
 		}
 	};
 
-	public void runDownloadExchange() {
+	private Runnable runForRefreshInfo = new Runnable() {
+
+		public void run() {
+			try {
+				inRunRefresh();
+			} catch (Exception ex) {
+
+			} finally {
+				_handler.postDelayed(this, UI.TimeRefreshInterval);
+			}
+		}
+	};
+
+	public void inRunDownloadExchange() {
 		TwdBit twdbit = dl.getExchange();
 		checkNotNull(twdbit);
-		updateNewExchange(twdbit);
+		updateExchange(twdbit);
+	}
+
+	protected void inRunRefresh() {
+		if (lastUpdateTime > 0) {
+			long diffs = (System.currentTimeMillis() - lastUpdateTime) / 1000;
+			int min = (int) (diffs / 60);
+			int sec = (int) (diffs % 60);
+			tvUpdateStatus.setText(String.format("%s分%s秒前更新", min, sec));
+		} else {
+			tvUpdateStatus.setText("首次更新");
+		}
 	}
 
 	OnClickListener clDebug = new OnClickListener() {
@@ -104,6 +140,12 @@ public class FullscreenActivity extends Activity {
 		}
 	};
 
+	private ImageView imgQrBcAddr;
+
+	private TextView tvAmount;
+	private TextView tvUpdateStatus;
+	private long lastUpdateTime;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -112,9 +154,13 @@ public class FullscreenActivity extends Activity {
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
-		tvMbtcTwd = (TextView) findViewById(R.id.mbtctwd);
+		tvMbtcTwd = (TextView) findViewById(R.id.tvBtcTwdInfo);
+		tvAmount = (TextView) findViewById(R.id.tvAmount);
+		tvUpdateStatus = (TextView) findViewById(R.id.tvUpdateStatus);
 
-		findViewById(R.id.imgView1).setOnClickListener(clDebug);
+		imgQr1 = (ImageView) findViewById(R.id.imgQr1);
+		imgQrBcAddr = (ImageView) findViewById(R.id.imgQrBcAddr);
+		// imgQr1.setOnClickListener(clDebug);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -178,13 +224,66 @@ public class FullscreenActivity extends Activity {
 		// while interacting with the UI.
 		findViewById(R.id.dummy_button).setOnTouchListener(
 				mDelayHideTouchListener);
+
 		_handler.postDelayed(runForDownlaodInfo, 1000);
+		_handler.postDelayed(runForRefreshInfo, 5000);
+
+		updateQrCodeBlockchainAddrQuery();
 	}
 
-	protected void updateNewExchange(TwdBit twdbit) {
-		// t("" + twdbit.getBtctwd());
+	private void updateQrCodeBlockchainAddrQuery() {
+		String content = UI.BC_URL_ADDR_PREFIX + UI.BITCOIN_ADDR_TEST;
+		int dimention = 500;
+		int width = 500;
+		int height = 500;
+		try {
+			int[] pixels = qrcodeEncoder.getPixels(content, dimention);
+			Bitmap bitmap = Bitmap.createBitmap(width, height,
+					Bitmap.Config.ARGB_8888);
+			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+			imgQrBcAddr.setImageBitmap(bitmap);
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	protected void updateExchange(TwdBit twdbit) {
+
+		tvUpdateStatus.setText("匯率更新中..");
 		checkNotNull(twdbit);
-		tvMbtcTwd.setText(UI.DFMT_2D.format(twdbit.getBtctwd() / 1000d));
+
+		tvMbtcTwd.setText(UI.DFMT_INT.format(twdbit.getBtctwd()));
+		double amount = (UI.TWD_SRV / twdbit.getBtctwd())
+				* (1 + (UI.FEE_RATE_SRV_PERCENT / 100f));
+
+		// update qr code
+
+		String amountFormat = String.format("%.8f", amount);
+
+		tvAmount.setText(amountFormat + " BTC(內含3％手續費)");
+
+		// update status
+		lastUpdateTime = System.currentTimeMillis();
+		inRunRefresh();
+		updatePriceQrCode(amount);
+	}
+
+	private void updatePriceQrCode(double amount) {
+		String content = Bitcoins.buildUri(UI.BITCOIN_ADDR_TEST, amount);
+		int dimention = 500;
+		int width = 500;
+		int height = 500;
+		try {
+			int[] pixels = qrcodeEncoder.getPixels(content, dimention);
+			Bitmap bitmap = Bitmap.createBitmap(width, height,
+					Bitmap.Config.ARGB_8888);
+			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+			imgQr1.setImageBitmap(bitmap);
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
@@ -221,6 +320,8 @@ public class FullscreenActivity extends Activity {
 	};
 
 	private TextView tvMbtcTwd;
+
+	private ImageView imgQr1;
 
 	/**
 	 * Schedules a call to hide() in [delay] milliseconds, canceling any

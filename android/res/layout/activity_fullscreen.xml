@@ -19,10 +19,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="比特幣收銀機  Bitcoin POS"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textSize="60dp" />
+                android:layout_margin="5dp"
+                android:text="久泰機車 比特幣收銀機  Bitcoin POS"
+                android:textSize="50dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -33,19 +32,28 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="mBTCTWD"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_margin="5dp"
+                android:text="BTC/TWD"
                 android:textSize="60dp" />
 
             <TextView
-                android:id="@+id/mbtctwd"
+                android:id="@+id/tvBtcTwdInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:text="-.-"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textSize="60dp" />
+
+            <TextView
+                android:id="@+id/tvUpdateStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="更新中"
+                android:textColor="#33b5e5"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -58,9 +66,45 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_margin="30dp"
+                android:layout_margin="20dp"
+                android:gravity="center|center_vertical"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:keepScreenOn="true"
+                    android:text="更換機油一次"
+                    android:textColor="#33b5e5"
+                    android:textSize="50sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/imgQr1"
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
+                    android:src="@drawable/qrcode_bkbc_twdbtc_url" />
+
+                <TextView
+                    android:id="@+id/tvAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:keepScreenOn="true"
+                    android:text="BTC"
+                    android:textColor="#33b5e5"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="50dp"
                 android:gravity="center_vertical"
                 android:orientation="vertical" >
+
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -70,47 +114,37 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_margin="30dp"
-                android:gravity="center_vertical"
+                android:gravity="center|center_vertical"
                 android:orientation="vertical" >
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:keepScreenOn="true"
-                    android:text="咖啡"
+                    android:text="交易查詢"
                     android:textColor="#33b5e5"
-                    android:textSize="50sp"
+                    android:textSize="30sp"
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:id="@+id/imgView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/qrcode_p131225" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:orientation="vertical" >
+                    android:id="@+id/imgQrBcAddr"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:src="@drawable/qrcode_bkbc_twdbtc_url" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:keepScreenOn="true"
-                    android:text="排骨便當"
+                    android:text="匯率說明"
                     android:textColor="#33b5e5"
-                    android:textSize="50sp"
+                    android:textSize="30sp"
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/qrcode_p131225" />
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/qrcode_bkbc_twdbtc_url" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
