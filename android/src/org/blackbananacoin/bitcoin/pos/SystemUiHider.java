@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.blackbananacoin.bitcoin.util;
+package org.blackbananacoin.bitcoin.pos;
 
 import android.app.Activity;
 import android.os.Build;

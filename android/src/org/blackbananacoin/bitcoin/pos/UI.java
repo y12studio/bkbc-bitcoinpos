@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.blackbananacoin.bitcoin.util;
+package org.blackbananacoin.bitcoin.pos;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 
 import android.util.Log;
 
@@ -26,17 +27,20 @@ public class UI {
 	public static final String BITCOIN_ADDR_MOTOR1 = "1UTJhfBLWW48eSKTZpTFGU8na4K4QSCo2";
 	public static final String BC_URL_ADDR_PREFIX = "https://blockchain.info/address/";
 	public static final float FEE_RATE_SRV_PERCENT = 3.0f;
-	public static final int TWD_SRV = 150;
+	public static final int TWD_SRV1 = 150;
 
 	public static final long TimeDownloadInterval = 5 * 60 * 1000;
-	public static final long TimeRefreshInterval = 5 * 1000;
-	public static final long TimeBcTxVerifyInterval = 3 * 60 * 1000;
+	public static final long TimeRefreshInterval = 1000;
+	public static final long TimeAutoTurnOnBkbcExQrArea = 5 * 60 * 1000;
+	public static final int TimeBcTxMaxCount = 6;
+	public static final int TimeBcTxVerifySec = 60;
+	public static final long TimeBcTxVerifyMs = TimeBcTxVerifySec * 1000;
 
 	public static final NumberFormat DFMT_INT = new DecimalFormat("#,###");
 	public static final NumberFormat DFMT_2D = new DecimalFormat("#,###.##");
-	
-	public static boolean mockBcTxCheck = false;
-	public static boolean ENABLE_POLL_INTERVAL_BCAPI_TX_CHECK = false;
+
+	public static final SimpleDateFormat TFMT = new SimpleDateFormat("HH:mm:ss");
+	public static final int TimeForTxCheck = 600;// 600 secs = 10mins
 
 	public static void logd(String log) {
 		Log.d(ACTIVITY_TAG, log);
@@ -44,6 +48,9 @@ public class UI {
 
 	public static void logv(String log) {
 		Log.v(ACTIVITY_TAG, log);
+	}
+	public static void loge(String log) {
+		Log.e(ACTIVITY_TAG, log);
 	}
 
 }

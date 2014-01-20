@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
-    tools:context=".FullscreenActivity" >
+    tools:context=".BitcoinPosActivity" >
 
     <LinearLayout
         android:id="@+id/fullscreen_content"
@@ -20,8 +20,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="久泰機車 比特幣收銀機  Bitcoin POS"
-                android:textSize="50dp" />
+                android:text="久泰機車"
+                android:textSize="40dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="比特幣收銀機 "
+                android:textSize="40dp" />
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="00:00:00"
+                android:textSize="40dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -161,41 +176,52 @@
                     android:gravity="center"
                     android:orientation="vertical"
                     android:visibility="gone" >
-                    
+
                     <TextView
+                        android:id="@+id/tvBcTxTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="最新交易"
                         android:textSize="28sp"
                         android:textStyle="bold" />
-                    
+
                     <TextView
-                    android:id="@+id/tvBcTxAddr"
+                        android:id="@+id/tvBcTxAddr"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="TxAddr"
                         android:textSize="28sp"
                         android:textStyle="bold" />
+                    
+                    <TextView
+                        android:id="@+id/tvBcTxCheckWaitDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Wait"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
 
                     <TextView
-                    android:id="@+id/tvBcTxAmount"
+                        android:id="@+id/tvBcTxAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="0.00BTC"
                         android:textSize="28sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvBcTxCheckTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="-"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
-                <TextView
-                    android:id="@+id/tvBcTxCheckTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="下次交易檢查x秒"
-                    android:textSize="28sp"
-                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

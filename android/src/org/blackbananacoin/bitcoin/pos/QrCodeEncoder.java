@@ -1,4 +1,4 @@
-package org.blackbananacoin.bitcoin;
+package org.blackbananacoin.bitcoin.pos;
 
 import java.util.EnumMap;
 

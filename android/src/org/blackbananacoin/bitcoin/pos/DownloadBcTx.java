@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.blackbananacoin.bitcoin.util;
+package org.blackbananacoin.bitcoin.pos;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -35,24 +35,15 @@ public class DownloadBcTx {
 	private BcApiSingleAddressBuilder builder = new BcApiSingleAddressBuilder();
 
 	public BcApiSingleAddress getSingleAddrResult() {
-		String url = builder.getUrl(UI.BITCOIN_ADDR_MOTOR1);
+		String url = BcApiSingleAddressBuilder.getUrl(UI.BITCOIN_ADDR_MOTOR1);
 		UI.logv("Start download tx json from url" + url);
-		Future<String> futureGet = AsyncHttpClient.getDefaultInstance().getString(url,
-				new AsyncHttpClient.StringCallback() {
-					public void onCompleted(Exception e,
-							AsyncHttpResponse response, String result) {
-						if (e != null) {
-							e.printStackTrace();
-							return;
-						}
-						UI.logv("json=" + result);
-					}
-				});
+		Future<String> futureGet = AsyncHttpClient.getDefaultInstance()
+				.getString(url);
 		BcApiSingleAddress target = null;
 		try {
 			String json = futureGet.get(10, TimeUnit.SECONDS);
+			UI.logv("Future Get Json = " + json);
 			target = builder.toModel(json);
-			// UI.logv("parse=" + target.toString());
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		} catch (ExecutionException e1) {
