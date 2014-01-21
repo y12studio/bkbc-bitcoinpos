@@ -30,13 +30,20 @@ import org.blackbananacoin.common.json.TwdBit;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -129,7 +136,8 @@ public class BitcoinPosActivity extends Activity {
 	public void inRunDownloadBkbcEx() {
 		TwdBit twdbit = dlBkbcEx.getExchange();
 		checkNotNull(twdbit);
-		updateExchange(twdbit);
+		uiState.setLastTwdBit(twdbit);
+		updatePriceQrCode();
 	}
 
 	private void turnOnBkbcExQr() {
@@ -173,12 +181,16 @@ public class BitcoinPosActivity extends Activity {
 		// first check time
 		long unixTimeSec = lastTx.getUnixTime();
 		// only show less 600 secs
-		long diff = System.currentTimeMillis() / 1000 - unixTimeSec;
-		UI.logv("ChcekCount=" + checkRunCount + "/LastTx time diff now = "
-				+ diff);
-		if (diff < uiState.getSecondsForTxCheck()) {
+		long unixTimeNow = System.currentTimeMillis() / 1000L;
+		// long dateTimeNow = new Date().getTime();
+		long diffSec = unixTimeNow - unixTimeSec;
+		UI.logv("[LastTx]=" + lastTx);
+		UI.logv("ChcekCount=" + checkRunCount + "/LastTx time diff = "
+				+ diffSec + " now = " + unixTimeNow);
+		if (diffSec > 0 && diffSec < uiState.getSecondsForTxCheck()) {
 			BcApiSingleAddrTxItem itemIn = lastTx.getFirstTxInputItem();
-			BcApiSingleAddrTxItem itemOut = lastTx.getTxOutputItem(UI.BITCOIN_ADDR_MOTOR1);
+			BcApiSingleAddrTxItem itemOut = lastTx
+					.getTxOutputItem(UI.BITCOIN_ADDR_MOTOR1);
 			checkNotNull(itemIn);
 			checkNotNull(itemOut);
 			result.setItemInput(itemIn);
@@ -268,10 +280,15 @@ public class BitcoinPosActivity extends Activity {
 
 	private TextView tvTime;
 
+	private TextView tvShopName;
+	private TextView tvProductName;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_fullscreen);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
 
 		uiState = new UiState();
 		float density = getResources().getDisplayMetrics().density;
@@ -279,6 +296,15 @@ public class BitcoinPosActivity extends Activity {
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
+		tvShopName = (TextView) findViewById(R.id.tvShopName);
+		tvProductName = (TextView) findViewById(R.id.tvProductName);
+
+		tvShopName.setText(prefs.getString("ShopName", "Shop"));
+		tvProductName.setText(prefs.getString("ProductName", "Product"));
+		int price = Integer.valueOf(prefs.getString("Price", ""
+				+ UI.TWD_DEFAULT_PRICE));
+		uiState.setPrice(price);
+
 		lyBcApiTxCheck = findViewById(R.id.lyBcTxCheckInfo);
 		lyBkbcEx = findViewById(R.id.lyBkbcExInfo);
 		tvMbtcTwd = (TextView) findViewById(R.id.tvBtcTwdInfo);
@@ -367,7 +393,29 @@ public class BitcoinPosActivity extends Activity {
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		spool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
 		soundID = spool.load(this, R.raw.kirby_style_laser, 1);
+
+		prefs.registerOnSharedPreferenceChangeListener(preferenceListener);
 	}
+
+	private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+		public void onSharedPreferenceChanged(SharedPreferences prefs,
+				String key) {
+			if (key.equals("ShopName")) {
+				String v = prefs.getString(key, "ShopName");
+				tvShopName.setText(v);
+				UI.logv("share preferences key=" + key + "/v=" + v);
+			} else if (key.equals("ProductName")) {
+				String v = prefs.getString(key, "Product");
+				tvProductName.setText(v);
+			} else if (key.equals("Price")) {
+				int v = Integer.valueOf(prefs.getString(key, "150"));
+				uiState.setPrice(v);
+				updatePriceQrCode();
+			} else {
+				UI.logv("share preferences key=" + key);
+			}
+		}
+	};
 
 	private void updateQrCodeBlockchainAddrQuery() {
 		String content = UI.BC_URL_ADDR_PREFIX + UI.BITCOIN_ADDR_MOTOR1;
@@ -385,6 +433,28 @@ public class BitcoinPosActivity extends Activity {
 		}
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// MenuInflater inflater = getMenuInflater();
+		// inflater.inflate(R.menu.mainmenu, menu);
+		menu.add(0, Menu.FIRST, 2, "Settings");
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	// This method is called once the menu is selected
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case Menu.FIRST:
+			// Launch settings activity
+			Intent i = new Intent(this, SettingsActivity.class);
+			startActivity(i);
+			break;
+		// more code...
+		}
+		return true;
+	}
+
 	private double getBtcAmountBy24hrmeanAndStd(TwdBit twdbit, int twd) {
 		double r = (twd / (twdbit.getMean24hr() - twdbit.getStd24hr()));
 		return r;
@@ -396,20 +466,15 @@ public class BitcoinPosActivity extends Activity {
 		return r;
 	}
 
-	protected void updateExchange(TwdBit twdbit) {
-
+	protected void updatePriceQrCode() {
 		tvUpdateStatus.setText("匯率更新中..");
+		TwdBit twdbit = uiState.getLastTwdBit();
 		checkNotNull(twdbit);
-
 		tvMbtcTwd.setText(UI.DFMT_INT.format(twdbit.getBtctwd()));
-
-		// double amount = getBtcAmountBy24hrmeanAndStd(twdbit, UI.TWD_SRV1);
-		double amount = getBtcAmountByPercentFee(twdbit, UI.TWD_SRV1);
-
+		double amount = getBtcAmountByPercentFee(twdbit, uiState.getPrice());
 		// update qr code
 		String amountFormat = String.format("%.8f", amount);
 		tvAmount.setText(amountFormat + " BTC(內含3%手續費)");
-
 		// update status
 		this.uiState.setLastUpdateExTime(System.currentTimeMillis());
 		inRunRefresh();

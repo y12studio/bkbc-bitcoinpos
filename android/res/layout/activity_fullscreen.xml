@@ -17,10 +17,11 @@
             android:gravity="center_horizontal" >
 
             <TextView
+                 android:id="@+id/tvShopName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="久泰機車"
+                android:text="ShopName"
                 android:textSize="40dp" />
 
             <TextView
@@ -86,6 +87,7 @@
                 android:orientation="vertical" >
 
                 <TextView
+                      android:id="@+id/tvProductName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"

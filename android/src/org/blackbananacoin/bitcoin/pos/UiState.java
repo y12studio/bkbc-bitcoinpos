@@ -1,5 +1,7 @@
 package org.blackbananacoin.bitcoin.pos;
 
+import org.blackbananacoin.common.json.TwdBit;
+
 public class UiState {
 
 	private long lastTxCheckFoundTime;
@@ -7,6 +9,8 @@ public class UiState {
 	private long lastUpdateExTime;
 	private int timeBcTxVerifyMs = UI.TimeBcTxVerifySec*1000;
 	private int timeBcTxVerifyMaxCount = UI.TimeBcTxMaxCount;
+	private int price = UI.TWD_DEFAULT_PRICE;
+	private TwdBit lastTwdBit = new TwdBit();
 	
 	private int secondsForTxCheck = UI.TimeForTxCheck;
 
@@ -65,6 +69,22 @@ public class UiState {
 
 	public void setSecondsForTxCheck(int secondsForTxCheck) {
 		this.secondsForTxCheck = secondsForTxCheck;
+	}
+
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
+	public TwdBit getLastTwdBit() {
+		return lastTwdBit;
+	}
+
+	public void setLastTwdBit(TwdBit lastTwdBit) {
+		this.lastTwdBit = lastTwdBit;
 	}
 
 }
