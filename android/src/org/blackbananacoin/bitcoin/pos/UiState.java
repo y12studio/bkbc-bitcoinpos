@@ -4,31 +4,25 @@ import org.blackbananacoin.common.json.TwdBit;
 
 public class UiState {
 
-	private long lastTxCheckFoundTime;
 	private long lastTxCheckTime;
 	private long lastUpdateExTime;
-	private int timeBcTxVerifyMs = UI.TimeBcTxVerifySec*1000;
+	private String bitcoinAddrShop = UI.BITCOIN_ADDR_MOTOR1;
+	private BcTxCheckResult lastBcTxCheckResult;
+	private long timeBcTxVerifyMs = UI.TimeBcTxVerifySec * 1000;
+	private long timeAutoTurnBkbcExQrArea = UI.TimeAutoTurnOnBkbcExQrArea;
 	private int timeBcTxVerifyMaxCount = UI.TimeBcTxMaxCount;
 	private int price = UI.TWD_DEFAULT_PRICE;
 	private TwdBit lastTwdBit = new TwdBit();
-	
+
 	private int secondsForTxCheck = UI.TimeForTxCheck;
 
 	public boolean isAutoTurnOnBkbcExQrArea() {
 		boolean r = false;
-		if (lastTxCheckTime > 0
-				&& (System.currentTimeMillis() - lastTxCheckTime > UI.TimeAutoTurnOnBkbcExQrArea)) {
+		long diff = System.currentTimeMillis() - lastTxCheckTime;
+		if (lastTxCheckTime > 0 && diff > getTimeAutoTurnBkbcExQrArea()) {
 			r = true;
 		}
 		return r;
-	}
-
-	public long getLastTxCheckFoundTime() {
-		return lastTxCheckFoundTime;
-	}
-
-	public void setLastTxCheckFoundTime(long lastTxCheckFoundTime) {
-		this.lastTxCheckFoundTime = lastTxCheckFoundTime;
 	}
 
 	public long getLastTxCheckTime() {
@@ -45,14 +39,6 @@ public class UiState {
 
 	public void setLastUpdateExTime(long lastUpdateExTime) {
 		this.lastUpdateExTime = lastUpdateExTime;
-	}
-
-	public int getTimeBcTxVerifyMs() {
-		return timeBcTxVerifyMs;
-	}
-
-	public void setTimeBcTxVerifyMs(int timeBcTxVerifyMs) {
-		this.timeBcTxVerifyMs = timeBcTxVerifyMs;
 	}
 
 	public int getTimeBcTxVerifyMaxCount() {
@@ -85,6 +71,54 @@ public class UiState {
 
 	public void setLastTwdBit(TwdBit lastTwdBit) {
 		this.lastTwdBit = lastTwdBit;
+	}
+
+	public BcTxCheckResult getLastBcTxCheckResult() {
+		return lastBcTxCheckResult;
+	}
+
+	public void setLastBcTxCheckResult(BcTxCheckResult lastBcTxCheckResult) {
+		this.lastBcTxCheckResult = lastBcTxCheckResult;
+	}
+
+	public String getBitcoinAddrShop() {
+		return bitcoinAddrShop;
+	}
+
+	public void setBitcoinAddrShop(String bitcoinAddrShop) {
+		this.bitcoinAddrShop = bitcoinAddrShop;
+	}
+
+	public long getTimeAutoTurnBkbcExQrArea() {
+		return timeAutoTurnBkbcExQrArea;
+	}
+
+	public void setTimeAutoTurnBkbcExQrArea(long timeAutoTurnBkbcExQrArea) {
+		this.timeAutoTurnBkbcExQrArea = timeAutoTurnBkbcExQrArea;
+	}
+
+	public long getTimeBcTxVerifyMs() {
+		return timeBcTxVerifyMs;
+	}
+
+	public void setTimeBcTxVerifyMs(long timeBcTxVerifyMs) {
+		this.timeBcTxVerifyMs = timeBcTxVerifyMs;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "UiState [lastTxCheckTime=" + lastTxCheckTime
+				+ ", lastUpdateExTime=" + lastUpdateExTime
+				+ ", bitcoinAddrShop=" + bitcoinAddrShop
+				+ ", lastBcTxCheckResult=" + lastBcTxCheckResult
+				+ ", timeBcTxVerifyMs=" + timeBcTxVerifyMs
+				+ ", timeAutoTurnBkbcExQrArea=" + timeAutoTurnBkbcExQrArea
+				+ ", timeBcTxVerifyMaxCount=" + timeBcTxVerifyMaxCount
+				+ ", price=" + price + ", lastTwdBit=" + lastTwdBit
+				+ ", secondsForTxCheck=" + secondsForTxCheck + "]";
 	}
 
 }

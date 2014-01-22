@@ -144,6 +144,7 @@ public class BitcoinPosActivity extends Activity {
 		if (!lyBkbcEx.isShown()) {
 			lyBcApiTxCheck.setVisibility(View.GONE);
 			lyBkbcEx.setVisibility(View.VISIBLE);
+			lyMidBitcoinCat.setVisibility(View.VISIBLE);
 		}
 
 		if (runForBcTxCheck != null) {
@@ -153,14 +154,16 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void initBcTxCheckArea() {
+		lyBcApiTxResult2.setVisibility(View.INVISIBLE);
 		tvBcTxCheckAddr.setText("-");
 		tvBcTxCheckAmount.setText("-");
+		tvBcTxCheckAddr2.setText("-");
+		tvBcTxCheckAmount2.setText("-");
 		tvBcTxCheckTime.setText("-");
+		tvBcTxCheckHr.setText("-");
+		tvBcTxCheckHr2.setText("-");
 		tvBcTxCheckWaitDesc.setText("-");
 		tvBcTxCheckWaitDesc.setVisibility(View.VISIBLE);
-		;
-		tvBcTxCheckAddr.setVisibility(View.GONE);
-		tvBcTxCheckAmount.setVisibility(View.GONE);
 		tvBcTxCheckTitle.setText("交易查詢開始..");
 	}
 
@@ -169,15 +172,19 @@ public class BitcoinPosActivity extends Activity {
 			lyBcApiTxCheck.setVisibility(View.VISIBLE);
 			lyBkbcEx.setVisibility(View.GONE);
 			initBcTxCheckArea();
+			lyMidBitcoinCat.setVisibility(View.GONE);
 		}
 	}
 
-	private BcTxCheckResult handleLastTxResult(BcApiSingleAddrTx lastTx,
-			int checkRunCount) {
-		BcTxCheckResult result = new BcTxCheckResult();
-		this.uiState.setLastTxCheckTime(System.currentTimeMillis());
-		checkNotNull(lastTx);
-		turnOnBcTxCheckArea();
+	/**
+	 * https://github.com/y12studio/bkbc-bitcoinpos/issues/11
+	 * 
+	 * @param lastTx
+	 * @return
+	 */
+	@Deprecated
+	private boolean isLastTxShowUpByUnixTime(BcApiSingleAddrTx lastTx) {
+		boolean r = false;
 		// first check time
 		long unixTimeSec = lastTx.getUnixTime();
 		// only show less 600 secs
@@ -185,21 +192,57 @@ public class BitcoinPosActivity extends Activity {
 		// long dateTimeNow = new Date().getTime();
 		long diffSec = unixTimeNow - unixTimeSec;
 		UI.logv("[LastTx]=" + lastTx);
-		UI.logv("ChcekCount=" + checkRunCount + "/LastTx time diff = "
-				+ diffSec + " now = " + unixTimeNow);
+		UI.logv("LastTx time diff = " + diffSec + " now = " + unixTimeNow);
 		if (diffSec > 0 && diffSec < uiState.getSecondsForTxCheck()) {
-			BcApiSingleAddrTxItem itemIn = lastTx.getFirstTxInputItem();
-			BcApiSingleAddrTxItem itemOut = lastTx
-					.getTxOutputItem(UI.BITCOIN_ADDR_MOTOR1);
-			checkNotNull(itemIn);
-			checkNotNull(itemOut);
-			result.setItemInput(itemIn);
-			result.setItemOut(itemOut);
-			result.setFound(true);
-		} else {
-			result.setFound(false);
+			r = true;
 		}
+		return r;
+	}
+
+	private boolean isLastTxShowUpByDiff(BcApiSingleAddrTx lastTx) {
+		boolean r = false;
+		BcTxCheckResult br = uiState.getLastBcTxCheckResult();
+		if (br != null && br.getLastBcApiTx() != null) {
+			BcApiSingleAddrTx oldTx = br.getLastBcApiTx();
+			UI.logv("[CheckDiff] oldTx=" + oldTx);
+			if (oldTx.getUnixTime() != lastTx.getUnixTime()) {
+				r = true;
+			}
+		} else {
+			r = true;
+		}
+		UI.log("[CheckDiff] result=" + r + "/ new tx=" + lastTx);
+		return r;
+	}
+
+	private BcTxCheckResult handleLastTxResult(BcApiSingleAddrTx lastTx,
+			BcApiSingleAddrTx last2Tx, int checkRunCount) {
+		BcTxCheckResult result = new BcTxCheckResult();
+		checkNotNull(lastTx);
+		UI.logv(lastTx.toString());
+		BcApiSingleAddrTxItem itemIn = lastTx.getFirstTxInputItem();
+		BcApiSingleAddrTxItem itemOut = lastTx.getTxOutputItem(uiState
+				.getBitcoinAddrShop());
+		checkNotNull(itemIn);
+		checkNotNull(itemOut);
+		turnOnBcTxCheckArea();
+		result.setFoundDiff(isLastTxShowUpByDiff(lastTx));
+		result.setItemInput(itemIn);
+		result.setItemOutput(itemOut);
+		result.setLastBcApiTx(lastTx);
+
+		if (last2Tx != null) {
+			result.setLastBcApi2Tx(last2Tx);
+			BcApiSingleAddrTxItem item2In = last2Tx.getFirstTxInputItem();
+			BcApiSingleAddrTxItem item2Out = last2Tx.getTxOutputItem(uiState
+					.getBitcoinAddrShop());
+			result.setItem2Input(item2In);
+			result.setItem2Output(item2Out);
+		}
+
 		result.setCheckCount(checkRunCount);
+		this.uiState.setLastTxCheckTime(System.currentTimeMillis());
+		this.uiState.setLastBcTxCheckResult(result);
 		return result;
 	}
 
@@ -219,7 +262,8 @@ public class BitcoinPosActivity extends Activity {
 		String btcStr = String.format("%.8f BTC", btc);
 		String addr = item.getAddr();
 		UI.logv("last input addr=" + addr + "/btc=" + btcStr);
-		tvBcTxCheckAddr.setText("地址末六碼**" + addr.substring(addr.length() - 6));
+		tvBcTxCheckAddr.setText(addr.substring(0, 5) + "**"
+				+ addr.substring(addr.length() - 5));
 		tvBcTxCheckAmount.setText(btcStr);
 	}
 
@@ -237,6 +281,7 @@ public class BitcoinPosActivity extends Activity {
 		}
 		if (lyBcApiTxCheck.isShown()) {
 			if (uiState.isAutoTurnOnBkbcExQrArea()) {
+				UI.logv("[AutoTurnOnBkbcExQrArea]");
 				turnOnBkbcExQr();
 			}
 
@@ -270,13 +315,19 @@ public class BitcoinPosActivity extends Activity {
 
 	private TextView tvAmount;
 	private TextView tvBcTxCheckAddr;
+	private TextView tvBcTxCheckHr;
+	private TextView tvBcTxCheckHr2;
+	private TextView tvBcTxCheckAddr2;
 	private TextView tvBcTxCheckAmount;
+	private TextView tvBcTxCheckAmount2;
 	private TextView tvBcTxCheckTitle;
 	private TextView tvBcTxCheckWaitDesc;
 	private TextView tvBcTxCheckTime;
 	private TextView tvUpdateStatus;
 	private View lyBkbcEx;
 	private View lyBcApiTxCheck;
+	private View lyBcApiTxResult2;
+	private View lyMidBitcoinCat;
 
 	private TextView tvTime;
 
@@ -306,12 +357,18 @@ public class BitcoinPosActivity extends Activity {
 		uiState.setPrice(price);
 
 		lyBcApiTxCheck = findViewById(R.id.lyBcTxCheckInfo);
+		lyBcApiTxResult2 = findViewById(R.id.lyBcTxResult2);
+		lyMidBitcoinCat = findViewById(R.id.lyMidBitcoinCat);
 		lyBkbcEx = findViewById(R.id.lyBkbcExInfo);
 		tvMbtcTwd = (TextView) findViewById(R.id.tvBtcTwdInfo);
 		tvAmount = (TextView) findViewById(R.id.tvAmount);
 		tvUpdateStatus = (TextView) findViewById(R.id.tvUpdateStatus);
 		tvBcTxCheckAmount = (TextView) findViewById(R.id.tvBcTxAmount);
+		tvBcTxCheckAmount2 = (TextView) findViewById(R.id.tvBcTxAmount2);
 		tvBcTxCheckAddr = (TextView) findViewById(R.id.tvBcTxAddr);
+		tvBcTxCheckHr = (TextView) findViewById(R.id.tvBcTxHr);
+		tvBcTxCheckHr2 = (TextView) findViewById(R.id.tvBcTxHr2);
+		tvBcTxCheckAddr2 = (TextView) findViewById(R.id.tvBcTxAddr2);
 		tvBcTxCheckTime = (TextView) findViewById(R.id.tvBcTxCheckTime);
 		tvBcTxCheckWaitDesc = (TextView) findViewById(R.id.tvBcTxCheckWaitDesc);
 		tvBcTxCheckTitle = (TextView) findViewById(R.id.tvBcTxTitle);
@@ -601,14 +658,13 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void handleKeyPadNum8() {
-		testFun1();
+		testFun(206);
 	}
 
-	private void testFun1() {
-		int testId = 203;
+	private void testFun(int testId) {
 		switch (testId) {
 		case 201:
-			testTxCheckRunFailToEnd();
+			testTxCheckRunNoDiffToEnd();
 			break;
 		case 202:
 			testBcApiDownload();
@@ -619,6 +675,15 @@ public class BitcoinPosActivity extends Activity {
 		case 204:
 			testAutoTurnOnBkbcQrArea();
 			break;
+		case 205:
+			testTxCheckRunOkEnd();
+			break;
+		case 206:
+			testTxCheckRunDownloadError();
+			break;
+		case 301:
+			testRunStop();
+			break;
 
 		default:
 			break;
@@ -626,40 +691,30 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void testBcApiDownload() {
-		BcApiSingleAddress x = dlBcTx.getSingleAddrResult();
+		BcApiSingleAddress x = dlBcTx.getSingleAddrResult(uiState
+				.getBitcoinAddrShop());
 		UI.logv("[TEST] " + x.getN_tx());
-	}
-
-	private void testFun2() {
-		// turnOnBkbcExQr();
-		// testHandleBcTxCheck();
-		testTxCheckRunOkEnd();
 	}
 
 	private void runBcTxCheck(final IRemoteBcTxCheckSrv rms) {
 		checkState(runForBcTxCheck == null);
 		turnOnBcTxCheckArea();
 		runForBcTxCheck = new Runnable() {
-			private BcTxCheckResult result;
+
+			int count;
 
 			@Override
 			public void run() {
-				result = rms.checkLastTxResult();
+				BcTxCheckResult result = rms.checkLastTxResult(count);
 				checkNotNull(result);
-				if (!result.isFound()) {
-					if (result.getCheckCount() < uiState
-							.getTimeBcTxVerifyMaxCount()) {
-						_handler.postDelayed(this,
-								uiState.getTimeBcTxVerifyMs());
-						rms.onBcApiTxCheckMidNotFound(result);
-					} else {
-						// TxCheck fail
-						rms.onBcApiTxCheckEndNotFound(result);
-					}
+				if (count < uiState.getTimeBcTxVerifyMaxCount()) {
+					_handler.postDelayed(this, uiState.getTimeBcTxVerifyMs());
+					rms.onBcApiTxCheck(result);
 				} else {
-					// found tx
-					rms.onBcApiTxCheckFound(result);
+					// TxCheck fail
+					rms.onBcApiTxCheckEnd(result);
 				}
+				count++;
 			}
 		};
 		_handler.post(runForBcTxCheck);
@@ -670,158 +725,137 @@ public class BitcoinPosActivity extends Activity {
 		private int count;
 
 		@Override
-		public BcTxCheckResult checkLastTxResult() {
+		public BcTxCheckResult checkLastTxResult(int acount) {
+			this.count = acount;
 			BcTxCheckResult r = null;
 			try {
-				BcApiSingleAddress addrResult = dlBcTx.getSingleAddrResult();
+				BcApiSingleAddress addrResult = dlBcTx
+						.getSingleAddrResult(uiState.getBitcoinAddrShop());
 				if (addrResult != null) {
 					BcApiSingleAddrTx lastTx = builderBcTx
 							.parseLastTx(addrResult);
-					r = handleLastTxResult(lastTx, count);
+					BcApiSingleAddrTx last2Tx = builderBcTx.parseTx(addrResult,
+							1);
+					r = handleLastTxResult(lastTx, last2Tx, count);
+					r.setDownloadError(false);
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
+				UI.loge(ex.getMessage());
+				r.setDownloadError(true);
 			}
 
 			if (r == null) {
 				r = new BcTxCheckResult();
 				r.setCheckCount(count);
-				r.setFound(false);
+				r.setFoundDiff(false);
+				r.setDownloadError(true);
+				UI.loge("[AfterCheck] result is null. create a new one.");
 			}
-			count++;
+			r.setCheckCount(count);
+
+			UI.logv("[AfterCheck UiState] " + uiState.toString());
+			UI.logv("[AfterCheck Result] " + r.toString());
+
 			return r;
 		}
 
 		@Override
-		public void onBcApiTxCheckEndNotFound(BcTxCheckResult result) {
-			tvBcTxCheckTitle.setText("查無交易!請稍候再試。");
+		public void onBcApiTxCheckEnd(BcTxCheckResult result) {
+			tvBcTxCheckTitle.setText("已完成查詢");
 			// make countdown stop.
 			tvBcTxCheckWaitDesc.setVisibility(View.GONE);
 			tvBcTxCheckTime.setText("總確認查詢 " + result.getCheckCount() + " 次");
 		}
 
 		@Override
-		public void onBcApiTxCheckFound(BcTxCheckResult result) {
-			uiState.setLastTxCheckFoundTime(System.currentTimeMillis());
-			playSound();
-			BcApiSingleAddrTxItem itemIn = result.getItemInput();
-			BcApiSingleAddrTxItem itemOut = result.getItemOut();
-			// spend to pos address
-			double btc = itemOut.getValue() * 1.0d / Bitcoins.COIN;
-			String btcStr = String.format("%.8f BTC", btc);
-			// tx input address
-			String addr = itemIn.getAddr();
-			tvBcTxCheckTitle.setText("查到最新交易");
-			tvBcTxCheckAmount.setVisibility(View.VISIBLE);
-			tvBcTxCheckAddr.setVisibility(View.VISIBLE);
-			tvBcTxCheckWaitDesc.setVisibility(View.GONE);
-			tvBcTxCheckAddr.setText("地址末六碼**"
-					+ addr.substring(addr.length() - 6));
-			tvBcTxCheckAmount.setText(btcStr);
-			tvBcTxCheckTime.setText("總確認查詢 " + result.getCheckCount() + " 次");
-		}
-
-		@Override
-		public void onBcApiTxCheckMidNotFound(BcTxCheckResult result) {
-			tvBcTxCheckTitle.setText("10分內無新交易");
-			updateBcTxNextRequestTxt(uiState.getTimeBcTxVerifyMs() / 1000);
-			tvBcTxCheckWaitDesc.setVisibility(View.VISIBLE);
-			tvBcTxCheckAddr.setVisibility(View.GONE);
-			tvBcTxCheckAmount.setVisibility(View.GONE);
-			tvBcTxCheckTime.setText("已確認查詢 " + result.getCheckCount() + "/"
-					+ uiState.getTimeBcTxVerifyMaxCount() + "次");
+		public void onBcApiTxCheck(BcTxCheckResult result) {
+			if (!result.isDownloadError()) {
+				if (result.isFoundDiff()) {
+					playSound();
+				}
+				updateBcTxResult(result);
+			} else {
+				updateBcTxDownloadErrorResult(result);
+			}
 		}
 
 	}
 
-	private void testTxCheckRunFailToEnd() {
+	private void testTxCheckRunNoDiffToEnd() {
 		// fast test
-		uiState.setTimeBcTxVerifyMs(20 * 1000);
-		uiState.setTimeBcTxVerifyMaxCount(3);
+		testUiStateMockSetup();
 		runBcTxCheck(new RemoteBcTxCheckSrv() {
 
-			int count;
-
 			@Override
-			public BcTxCheckResult checkLastTxResult() {
+			public BcTxCheckResult checkLastTxResult(int count) {
 				BcTxCheckResult r = testMockUiLastTxFound(false, count);
-				count++;
+				UI.logv("[TEST] " + uiState.toString());
+				UI.logv("[TEST] " + r.toString());
 				return r;
-			}
-
-			@Override
-			public void onBcApiTxCheckEndNotFound(BcTxCheckResult result) {
-				_handler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						testAutoTurnOnBkbcQrArea();
-					}
-				}, 10 * 1000);
-				super.onBcApiTxCheckEndNotFound(result);
 			}
 		});
 	}
 
-	private void testTxCheckRunReturnNull() {
-		// fast test
+	public void updateBcTxDownloadErrorResult(BcTxCheckResult result) {
+		tvBcTxCheckAddr.setText("-");
+		tvBcTxCheckAmount.setText("-");
+		tvBcTxCheckAddr2.setText("-");
+		tvBcTxCheckHr.setText("-");
+		tvBcTxCheckHr2.setText("-");
+		tvBcTxCheckAmount2.setText("-");
+		lyBcApiTxResult2.setVisibility(View.INVISIBLE);
+		tvBcTxCheckTitle.setText("交易查詢中");
+		tvBcTxCheckTime.setText("已查詢 " + result.getCheckCount() + "/"
+				+ uiState.getTimeBcTxVerifyMaxCount() + "次");
+	}
+
+	private void testUiStateMockSetup() {
 		uiState.setTimeBcTxVerifyMs(20 * 1000);
 		uiState.setTimeBcTxVerifyMaxCount(3);
+		uiState.setTimeAutoTurnBkbcExQrArea(20 * 1000);
+		try {
+			BcApiSingleAddress addrResult;
+			addrResult = builderBcTx.buildDemo();
+			// BcApiSingleAddrTx lastTx = builderBcTx.parseLastTx(addrResult);
+			uiState.setBitcoinAddrShop(addrResult.getAddress());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void testTxCheckRunReturnNull() {
+		// fast test
+		testUiStateMockSetup();
 		runBcTxCheck(new RemoteBcTxCheckSrv() {
 
-			int count;
-
 			@Override
-			public BcTxCheckResult checkLastTxResult() {
+			public BcTxCheckResult checkLastTxResult(int count) {
 				BcTxCheckResult r = testMockUiLastTxFound(false, count);
 				if (count == 1) {
 					r = null;
 				}
-				count++;
 				return r;
-			}
-
-			@Override
-			public void onBcApiTxCheckEndNotFound(BcTxCheckResult result) {
-				_handler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						testAutoTurnOnBkbcQrArea();
-					}
-				}, 10 * 1000);
-				super.onBcApiTxCheckEndNotFound(result);
 			}
 		});
 	}
 
 	private void testTxCheckRunOkEnd() {
 		// fast test
-		uiState.setTimeBcTxVerifyMs(10 * 1000);
-		uiState.setTimeBcTxVerifyMaxCount(3);
+		testUiStateMockSetup();
 		runBcTxCheck(new RemoteBcTxCheckSrv() {
 
-			int count;
-
 			@Override
-			public BcTxCheckResult checkLastTxResult() {
+			public BcTxCheckResult checkLastTxResult(int count) {
 				BcTxCheckResult r = null;
 				if (count == 2) {
 					r = testMockUiLastTxFound(true, count);
 				} else {
 					r = testMockUiLastTxFound(false, count);
 				}
-				count++;
+				UI.logv("[TEST] " + uiState.toString());
+				UI.logv("[TEST] " + r.toString());
 				return r;
-			}
-
-			@Override
-			public void onBcApiTxCheckFound(BcTxCheckResult result) {
-				super.onBcApiTxCheckFound(result);
-				_handler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						testAutoTurnOnBkbcQrArea();
-					}
-				}, 10 * 1000);
 			}
 		});
 	}
@@ -843,14 +877,11 @@ public class BitcoinPosActivity extends Activity {
 			int runCheckCount) {
 		BcTxCheckResult result = null;
 		try {
-			BcApiSingleAddress addrResult;
-			addrResult = builderBcTx.buildDemo();
+			BcApiSingleAddress addrResult = builderBcTx.buildDemo();
 			BcApiSingleAddrTx lastTx = builderBcTx.parseLastTx(addrResult);
-			lastTx.setUnixTime(System.currentTimeMillis()
-					/ 1000
-					- (isFound ? (uiState.getSecondsForTxCheck() - 60)
-							: uiState.getSecondsForTxCheck() + 60));
-			result = handleLastTxResult(lastTx, runCheckCount);
+			BcApiSingleAddrTx last2Tx = builderBcTx.parseTx(addrResult, 1);
+			result = handleLastTxResult(lastTx, last2Tx, runCheckCount);
+			result.setFoundDiff(isFound);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -858,7 +889,7 @@ public class BitcoinPosActivity extends Activity {
 		return result;
 	}
 
-	private void stopRunTest() {
+	private void testRunStop() {
 		if (runForTest != null) {
 			_handler.removeCallbacks(runForTest);
 			runForTest = null;
@@ -866,6 +897,81 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void handleKeyPadNum9() {
-		testFun2();
+		// testFun(205);
+	}
+
+	private String getPrintBtc(BcApiSingleAddrTxItem item) {
+		double btc = item.getValue() * 1.0d / Bitcoins.COIN;
+		String btcStr = String.format("%.8f BTC", btc);
+		return btcStr;
+	}
+
+	private String getPrintAddr(BcApiSingleAddrTxItem item) {
+		String addr = item.getAddr();
+		return addr.substring(0, 6) + "***" + addr.substring(addr.length() - 6);
+	}
+
+	private void updateBcTxResult(BcTxCheckResult result) {
+		tvBcTxCheckTitle.setText("最新交易");
+		if (result.getLastBcApiTx() != null) {
+			BcApiSingleAddrTxItem itemIn = result.getItemInput();
+			BcApiSingleAddrTxItem itemOut = result.getItemOutput();
+			checkNotNull(itemOut);
+			tvBcTxCheckAddr.setText(getPrintAddr(itemIn));
+			tvBcTxCheckHr.setText(getPrintHR(result.getLastBcApiTx()));
+			tvBcTxCheckAmount.setText(getPrintBtc(itemOut));
+		} else {
+			tvBcTxCheckAddr.setText("-");
+			tvBcTxCheckAmount.setText("-");
+			tvBcTxCheckHr.setText("-");
+		}
+		if (result.getLastBcApi2Tx() != null) {
+			lyBcApiTxResult2.setVisibility(View.VISIBLE);
+			BcApiSingleAddrTxItem item2Out = result.getItem2Output();
+			BcApiSingleAddrTxItem item2in = result.getItem2Input();
+			tvBcTxCheckAmount2.setText(getPrintBtc(item2Out));
+			tvBcTxCheckAddr2.setText(getPrintAddr(item2in));
+			tvBcTxCheckHr2.setText(getPrintHR(result.getLastBcApi2Tx()));
+		} else {
+			lyBcApiTxResult2.setVisibility(View.INVISIBLE);
+			tvBcTxCheckAmount2.setText("-");
+			tvBcTxCheckAddr2.setText("-");
+			tvBcTxCheckHr2.setText("-");
+		}
+
+		tvBcTxCheckTime.setText("已查詢 " + result.getCheckCount() + "/"
+				+ uiState.getTimeBcTxVerifyMaxCount() + "次");
+	}
+
+	private String getPrintHR(BcApiSingleAddrTx tx) {
+		String r = "";
+		long unixtime = tx.getUnixTime();
+		long unixTimeNow = System.currentTimeMillis() / 1000L;
+		long diff = unixTimeNow - unixtime;
+		if (diff <= UI.ONEHOURSEC) {
+			// diff <0 is possible
+			r = "1小時內";
+		} else {
+			long hr = diff / UI.ONEHOURSEC;
+
+			r = hr + "小時前";
+		}
+		return r;
+	}
+
+	private void testTxCheckRunDownloadError() {
+		// fast test
+		testUiStateMockSetup();
+		runBcTxCheck(new RemoteBcTxCheckSrv() {
+
+			@Override
+			public BcTxCheckResult checkLastTxResult(int count) {
+				BcTxCheckResult r = testMockUiLastTxFound(false, count);
+				if (count == 1) {
+					r.setDownloadError(true);
+				}
+				return r;
+			}
+		});
 	}
 }

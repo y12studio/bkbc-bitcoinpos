@@ -3,12 +3,10 @@ package org.blackbananacoin.bitcoin.pos;
 
 public interface IRemoteBcTxCheckSrv {
 	
-	public BcTxCheckResult checkLastTxResult();
+	public BcTxCheckResult checkLastTxResult(int count);
 	
-	public void onBcApiTxCheckEndNotFound(BcTxCheckResult result);
+	public void onBcApiTxCheckEnd(BcTxCheckResult result);
 
-	public void onBcApiTxCheckFound(BcTxCheckResult result);
-
-	public void onBcApiTxCheckMidNotFound(BcTxCheckResult result);
+	public void onBcApiTxCheck(BcTxCheckResult result);
 	
 }

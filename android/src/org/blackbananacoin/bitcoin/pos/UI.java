@@ -32,15 +32,18 @@ public class UI {
 	public static final long TimeDownloadInterval = 5 * 60 * 1000;
 	public static final long TimeRefreshInterval = 1000;
 	public static final long TimeAutoTurnOnBkbcExQrArea = 5 * 60 * 1000;
-	public static final int TimeBcTxMaxCount = 5;
+	public static final int TimeBcTxMaxCount = 3;
 	public static final int TimeBcTxVerifySec = 60;
 	public static final long TimeBcTxVerifyMs = TimeBcTxVerifySec * 1000;
 
 	public static final NumberFormat DFMT_INT = new DecimalFormat("#,###");
 	public static final NumberFormat DFMT_2D = new DecimalFormat("#,###.##");
 
-	public static final SimpleDateFormat TFMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	public static final SimpleDateFormat TFMT = new SimpleDateFormat(
+			"yyyy/MM/dd HH:mm:ss");
 	public static final int TimeForTxCheck = 600;// 600 secs = 10mins
+	
+	public static final long ONEHOURSEC = 60 * 60;
 
 	public static void logd(String log) {
 		Log.d(ACTIVITY_TAG, log);
@@ -49,8 +52,13 @@ public class UI {
 	public static void logv(String log) {
 		Log.v(ACTIVITY_TAG, log);
 	}
+
 	public static void loge(String log) {
 		Log.e(ACTIVITY_TAG, log);
+	}
+
+	public static void log(String log) {
+		Log.i(ACTIVITY_TAG, log);
 	}
 
 }

@@ -34,9 +34,9 @@ public class DownloadBcTx {
 
 	private BcApiSingleAddressBuilder builder = new BcApiSingleAddressBuilder();
 
-	public BcApiSingleAddress getSingleAddrResult() {
-		String url = BcApiSingleAddressBuilder.getUrl(UI.BITCOIN_ADDR_MOTOR1);
-		UI.logv("Start download tx json from url" + url);
+	public BcApiSingleAddress getSingleAddrResult(String bitcoinAddr) {
+		String url = BcApiSingleAddressBuilder.getUrl(bitcoinAddr);
+		UI.logv("Start download tx json from url " + url);
 		Future<String> futureGet = AsyncHttpClient.getDefaultInstance()
 				.getString(url);
 		BcApiSingleAddress target = null;

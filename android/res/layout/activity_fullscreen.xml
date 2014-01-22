@@ -17,7 +17,7 @@
             android:gravity="center_horizontal" >
 
             <TextView
-                 android:id="@+id/tvShopName"
+                android:id="@+id/tvShopName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -87,7 +87,7 @@
                 android:orientation="vertical" >
 
                 <TextView
-                      android:id="@+id/tvProductName"
+                    android:id="@+id/tvProductName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -116,9 +116,10 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/lyMidBitcoinCat"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_margin="50dp"
+                android:layout_margin="30dp"
                 android:gravity="center_vertical"
                 android:orientation="vertical" >
 
@@ -188,30 +189,87 @@
                         android:textSize="28sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tvBcTxAddr"
+                    <LinearLayout
+                        android:id="@+id/lyBcTxResult1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="TxAddr"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
-                    
+                        android:orientation="horizontal" >
+                        <TextView
+                            android:id="@+id/tvBcTxAddr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:gravity="center"
+                            android:text="TxAddr"
+                            android:textColor="#FFFFFF"
+                            android:textSize="36dp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvBcTxAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:gravity="center"
+                            android:textColor="#FFFF00"
+                            android:text="0.00BTC"
+                            android:textSize="30dp"
+                            android:textStyle="bold" />
+                          <TextView
+                            android:id="@+id/tvBcTxHr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:gravity="center"
+                            android:textColor="#FFFFFF"
+                            android:text="0hr"
+                            android:textSize="30dp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/lyBcTxResult2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal" >
+                        <TextView
+                            android:id="@+id/tvBcTxAddr2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:gravity="center"
+                            android:text="-"
+                            android:textColor="#FFFFFF"
+                            android:textSize="36dp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvBcTxAmount2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:gravity="center"
+                            android:textColor="#FFFF00"
+                            android:text="-"
+                            android:textSize="30dp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvBcTxHr2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:gravity="center"
+                            android:textColor="#FFFFFF"
+                            android:text="1hr"
+                            android:textSize="30dp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
                     <TextView
                         android:id="@+id/tvBcTxCheckWaitDesc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="Wait"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvBcTxAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="0.00BTC"
                         android:textSize="28sp"
                         android:textStyle="bold" />
 
