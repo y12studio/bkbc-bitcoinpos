@@ -2,7 +2,7 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:i="&amp;#38;#38;ns_ai;"
+   xmlns:i="&amp;#38;#38;#38;ns_ai;"
    xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -30,7 +30,7 @@
          offset="0"
          id="stop16997" />
       <stop
-         style="stop-color:#ffffff;stop-opacity:0;"
+         style="stop-color:#ffffff;stop-opacity:1;"
          offset="1"
          id="stop16999" />
     </linearGradient>
@@ -538,8 +538,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.4508836"
-     inkscape:cx="202.97643"
-     inkscape:cy="747.72417"
+     inkscape:cx="309.78483"
+     inkscape:cy="704.16786"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -547,7 +547,8 @@
      inkscape:window-height="862"
      inkscape:window-x="75"
      inkscape:window-y="75"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="0"
+     borderlayer="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -7252,15 +7253,15 @@
        id="rect12486"
        width="387.34399"
        height="1105.2856"
-       x="1066.0768"
-       y="96.391159" />
+       x="1063.859"
+       y="47.598076" />
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.56488800000000010;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.564888;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect12486-9"
        width="387.34399"
        height="1105.2856"
        x="-1450.6162"
-       y="196.74141"
+       y="132.42326"
        transform="matrix(0,-1,1,0,0,0)" />
     <g
        id="g5428-2"
@@ -10141,15 +10142,15 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:91.59921264999999800px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sakkal Majalla;-inkscape-font-specification:Sakkal Majalla"
-       x="520.08331"
-       y="1022.8028"
+       style="font-size:67.43861389px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sakkal Majalla;-inkscape-font-specification:Sakkal Majalla"
+       x="795.86572"
+       y="1017.2345"
        id="text4840"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4842"
-         x="520.08331"
-         y="1022.8028">http://9tai.y12.tw</tspan></text>
+         x="795.86572"
+         y="1017.2345">9tai.y12.tw</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
