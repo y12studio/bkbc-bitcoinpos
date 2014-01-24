@@ -475,7 +475,8 @@ public class BitcoinPosActivity extends Activity {
 	};
 
 	private void updateQrCodeBlockchainAddrQuery() {
-		String content = UI.BC_URL_ADDR_PREFIX + UI.BITCOIN_ADDR_MOTOR1;
+		//String content = UI.BC_URL_ADDR_PREFIX + UI.BITCOIN_ADDR_MOTOR1;
+		String content = UI.BC_URL_ADDR_PREFIX_zh_cn + uiState.getBitcoinAddrShop();
 		int dimention = 500;
 		int width = 500;
 		int height = 500;
@@ -539,7 +540,7 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void updatePriceQrCode(double amount) {
-		String content = Bitcoins.buildUri(UI.BITCOIN_ADDR_MOTOR1, amount);
+		String content = Bitcoins.buildUri(uiState.getBitcoinAddrShop(), amount);
 		int dimention = 500;
 		int width = 500;
 		int height = 500;

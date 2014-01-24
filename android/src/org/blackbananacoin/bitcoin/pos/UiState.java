@@ -6,7 +6,7 @@ public class UiState {
 
 	private long lastTxCheckTime;
 	private long lastUpdateExTime;
-	private String bitcoinAddrShop = UI.BITCOIN_ADDR_MOTOR1;
+	private String bitcoinAddrShop = UI.BITCOIN_ADDR_FIELD_TEST_MOTOR1;
 	private BcTxCheckResult lastBcTxCheckResult;
 	private long timeBcTxVerifyMs = UI.TimeBcTxVerifySec * 1000;
 	private long timeAutoTurnBkbcExQrArea = UI.TimeAutoTurnOnBkbcExQrArea;

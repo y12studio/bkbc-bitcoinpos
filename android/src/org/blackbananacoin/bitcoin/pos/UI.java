@@ -24,8 +24,9 @@ import android.util.Log;
 public class UI {
 
 	private static final String ACTIVITY_TAG = "BKBC_BitCoinPOS";
-	public static final String BITCOIN_ADDR_MOTOR1 = "1UTJhfBLWW48eSKTZpTFGU8na4K4QSCo2";
+	public static final String BITCOIN_ADDR_FIELD_TEST_MOTOR1 = "1UTJhfBLWW48eSKTZpTFGU8na4K4QSCo2";
 	public static final String BC_URL_ADDR_PREFIX = "https://blockchain.info/address/";
+	public static final String BC_URL_ADDR_PREFIX_zh_cn = "https://blockchain.info/zh-cn/address/";
 	public static final float FEE_RATE_SRV_PERCENT = 3.0f;
 	public static final int TWD_DEFAULT_PRICE = 150;
 
