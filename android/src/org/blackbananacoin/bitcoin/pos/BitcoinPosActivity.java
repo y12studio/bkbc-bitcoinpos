@@ -312,6 +312,7 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private ImageView imgQrBcAddr;
+	private ImageView imgQrWebSite;
 
 	private TextView tvAmount;
 	private TextView tvBcTxCheckAddr;
@@ -350,12 +351,6 @@ public class BitcoinPosActivity extends Activity {
 		tvShopName = (TextView) findViewById(R.id.tvShopName);
 		tvProductName = (TextView) findViewById(R.id.tvProductName);
 
-		tvShopName.setText(prefs.getString("ShopName", "Shop"));
-		tvProductName.setText(prefs.getString("ProductName", "Product"));
-		int price = Integer.valueOf(prefs.getString("Price", ""
-				+ UI.TWD_DEFAULT_PRICE));
-		uiState.setPrice(price);
-
 		lyBcApiTxCheck = findViewById(R.id.lyBcTxCheckInfo);
 		lyBcApiTxResult2 = findViewById(R.id.lyBcTxResult2);
 		lyMidBitcoinCat = findViewById(R.id.lyMidBitcoinCat);
@@ -376,7 +371,9 @@ public class BitcoinPosActivity extends Activity {
 
 		imgQr1 = (ImageView) findViewById(R.id.imgQr1);
 		imgQrBcAddr = (ImageView) findViewById(R.id.imgQrBcAddr);
-		// imgQr1.setOnClickListener(clDebug);
+		imgQrWebSite = (ImageView) findViewById(R.id.imgQrWebSite);
+
+		initPrefsValue(prefs);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -445,13 +442,23 @@ public class BitcoinPosActivity extends Activity {
 
 		_handler.postDelayed(runForRefreshInfo, 5000);
 
-		updateQrCodeBlockchainAddrQuery();
-
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		spool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
 		soundID = spool.load(this, R.raw.kirby_style_laser, 1);
 
 		prefs.registerOnSharedPreferenceChangeListener(preferenceListener);
+
+		updateQrCodeBlockchainAddr();
+		updateQrCodeWebSite();
+	}
+
+	private void initPrefsValue(SharedPreferences prefs) {
+		tvShopName.setText(prefs.getString("ShopName", "Shop"));
+		tvProductName.setText(prefs.getString("ProductName", "Product"));
+		int price = Integer.valueOf(prefs.getString("Price", ""
+				+ UI.TWD_DEFAULT_PRICE));
+		uiState.setPrice(price);
+		uiState.setWebsite(prefs.getString("WebSite", UI.WEBSITE_TEST_MOTOR1));
 	}
 
 	private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -464,6 +471,10 @@ public class BitcoinPosActivity extends Activity {
 			} else if (key.equals("ProductName")) {
 				String v = prefs.getString(key, "Product");
 				tvProductName.setText(v);
+			} else if (key.equals("WebSite")) {
+				String v = prefs.getString(key, "WebSite");
+				uiState.setWebsite(v);
+				updateQrCodeWebSite();
 			} else if (key.equals("Price")) {
 				int v = Integer.valueOf(prefs.getString(key, "150"));
 				uiState.setPrice(v);
@@ -474,9 +485,10 @@ public class BitcoinPosActivity extends Activity {
 		}
 	};
 
-	private void updateQrCodeBlockchainAddrQuery() {
-		//String content = UI.BC_URL_ADDR_PREFIX + UI.BITCOIN_ADDR_MOTOR1;
-		String content = UI.BC_URL_ADDR_PREFIX_zh_cn + uiState.getBitcoinAddrShop();
+	private void updateQrCodeBlockchainAddr() {
+		// String content = UI.BC_URL_ADDR_PREFIX + UI.BITCOIN_ADDR_MOTOR1;
+		String content = UI.BC_URL_ADDR_PREFIX_zh_cn
+				+ uiState.getBitcoinAddrShop();
 		int dimention = 500;
 		int width = 500;
 		int height = 500;
@@ -489,6 +501,35 @@ public class BitcoinPosActivity extends Activity {
 		} catch (WriterException e) {
 			e.printStackTrace();
 		}
+
+		try {
+			int[] pixels = qrcodeEncoder.getPixels(uiState.getWebsite(),
+					dimention);
+			Bitmap bitmap = Bitmap.createBitmap(width, height,
+					Bitmap.Config.ARGB_8888);
+			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+			imgQrWebSite.setImageBitmap(bitmap);
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void updateQrCodeWebSite() {
+		int dimention = 500;
+		int width = 500;
+		int height = 500;
+		try {
+			int[] pixels = qrcodeEncoder.getPixels(uiState.getWebsite(),
+					dimention);
+			Bitmap bitmap = Bitmap.createBitmap(width, height,
+					Bitmap.Config.ARGB_8888);
+			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+			imgQrWebSite.setImageBitmap(bitmap);
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
@@ -540,7 +581,8 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void updatePriceQrCode(double amount) {
-		String content = Bitcoins.buildUri(uiState.getBitcoinAddrShop(), amount);
+		String content = Bitcoins
+				.buildUri(uiState.getBitcoinAddrShop(), amount);
 		int dimention = 500;
 		int width = 500;
 		int height = 500;

@@ -161,12 +161,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="匯率說明"
+                        android:text="商家網站"
                         android:textColor="#33b5e5"
                         android:textSize="30sp"
                         android:textStyle="bold" />
 
                     <ImageView
+                        android:id="@+id/imgQrWebSite"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
                         android:src="@drawable/qrcode_bkbc_twdbtc_url" />

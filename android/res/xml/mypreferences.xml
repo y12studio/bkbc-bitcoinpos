@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <EditTextPreference android:title="店名" android:key="ShopName" android:defaultValue="久泰機車"/>
-    <EditTextPreference android:title="Product Name" android:key="ProductName" android:defaultValue="更換機油一次"/>
-    <EditTextPreference android:title="TWD Price" android:key="Price" android:defaultValue="150" android:inputType="number" />
+    <EditTextPreference android:title="預設產品名稱" android:key="ProductName" android:defaultValue="更換機油一次"/>
+    <EditTextPreference android:title="預設價格" android:key="Price" android:defaultValue="150" android:inputType="number" />
+    <EditTextPreference android:title="網址" android:key="WebSite" android:defaultValue="http://9tai.y12.tw" />
     
 </PreferenceScreen>

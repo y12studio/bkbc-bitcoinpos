@@ -7,6 +7,7 @@ public class UiState {
 	private long lastTxCheckTime;
 	private long lastUpdateExTime;
 	private String bitcoinAddrShop = UI.BITCOIN_ADDR_FIELD_TEST_MOTOR1;
+	private String website = UI.WEBSITE_TEST_MOTOR1;
 	private BcTxCheckResult lastBcTxCheckResult;
 	private long timeBcTxVerifyMs = UI.TimeBcTxVerifySec * 1000;
 	private long timeAutoTurnBkbcExQrArea = UI.TimeAutoTurnOnBkbcExQrArea;
@@ -119,6 +120,14 @@ public class UiState {
 				+ ", timeBcTxVerifyMaxCount=" + timeBcTxVerifyMaxCount
 				+ ", price=" + price + ", lastTwdBit=" + lastTwdBit
 				+ ", secondsForTxCheck=" + secondsForTxCheck + "]";
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
 	}
 
 }
