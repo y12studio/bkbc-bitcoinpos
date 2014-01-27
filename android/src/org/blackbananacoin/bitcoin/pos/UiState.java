@@ -6,13 +6,13 @@ public class UiState {
 
 	private long lastTxCheckTime;
 	private long lastUpdateExTime;
-	private String bitcoinAddrShop = UI.BITCOIN_ADDR_FIELD_TEST_MOTOR1;
-	private String website = UI.WEBSITE_TEST_MOTOR1;
+	private String bitcoinAddrShop;
+	private String website;
 	private BcTxCheckResult lastBcTxCheckResult;
 	private long timeBcTxVerifyMs = UI.TimeBcTxVerifySec * 1000;
 	private long timeAutoTurnBkbcExQrArea = UI.TimeAutoTurnOnBkbcExQrArea;
 	private int timeBcTxVerifyMaxCount = UI.TimeBcTxMaxCount;
-	private int price = UI.TWD_DEFAULT_PRICE;
+	private int price;
 	private TwdBit lastTwdBit = new TwdBit();
 
 	private int secondsForTxCheck = UI.TimeForTxCheck;

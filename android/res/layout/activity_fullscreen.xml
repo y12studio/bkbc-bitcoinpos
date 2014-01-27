@@ -103,15 +103,23 @@
                     android:layout_height="300dp"
                     android:src="@drawable/qrcode_bkbc_twdbtc_url" />
 
+                 <TextView
+                    android:id="@+id/tvBitAddr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="BTCADDR"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:id="@+id/tvAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:keepScreenOn="true"
                     android:text="BTC"
                     android:textColor="#33b5e5"
-                    android:textSize="20sp"
+                    android:textSize="20dp"
                     android:textStyle="bold" />
             </LinearLayout>
 

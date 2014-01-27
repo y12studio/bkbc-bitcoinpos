@@ -32,7 +32,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -42,11 +42,9 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -316,6 +314,7 @@ public class BitcoinPosActivity extends Activity {
 
 	private TextView tvAmount;
 	private TextView tvBcTxCheckAddr;
+	private TextView tvShopBtcAddr;
 	private TextView tvBcTxCheckHr;
 	private TextView tvBcTxCheckHr2;
 	private TextView tvBcTxCheckAddr2;
@@ -357,6 +356,7 @@ public class BitcoinPosActivity extends Activity {
 		lyBkbcEx = findViewById(R.id.lyBkbcExInfo);
 		tvMbtcTwd = (TextView) findViewById(R.id.tvBtcTwdInfo);
 		tvAmount = (TextView) findViewById(R.id.tvAmount);
+		tvShopBtcAddr = (TextView) findViewById(R.id.tvBitAddr);
 		tvUpdateStatus = (TextView) findViewById(R.id.tvUpdateStatus);
 		tvBcTxCheckAmount = (TextView) findViewById(R.id.tvBcTxAmount);
 		tvBcTxCheckAmount2 = (TextView) findViewById(R.id.tvBcTxAmount2);
@@ -453,30 +453,36 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void initPrefsValue(SharedPreferences prefs) {
-		tvShopName.setText(prefs.getString("ShopName", "Shop"));
-		tvProductName.setText(prefs.getString("ProductName", "Product"));
-		int price = Integer.valueOf(prefs.getString("Price", ""
-				+ UI.TWD_DEFAULT_PRICE));
+		tvShopName.setText(prefs.getString(UI.PREF_KEY_SHOP, null));
+		tvProductName.setText(prefs.getString(UI.PREF_KEY_PRODUCT, null));
+		int price = Integer.valueOf(prefs.getString(UI.PREF_KEY_PRICE, null));
 		uiState.setPrice(price);
-		uiState.setWebsite(prefs.getString("WebSite", UI.WEBSITE_TEST_MOTOR1));
+		uiState.setWebsite(prefs.getString(UI.PREF_KEY_WEBSITE, null));
+
+		String bAddr = prefs.getString(UI.PREF_KEY_BTC_ADDR, null);
+		uiState.setBitcoinAddrShop(bAddr);
+		tvShopBtcAddr.setText(bAddr);
+		UI.log("[InitPref]" + uiState.toString());
 	}
 
 	private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
 		public void onSharedPreferenceChanged(SharedPreferences prefs,
 				String key) {
-			if (key.equals("ShopName")) {
-				String v = prefs.getString(key, "ShopName");
+			if (key.equals(UI.PREF_KEY_SHOP)) {
+				String v = prefs.getString(key, null);
 				tvShopName.setText(v);
-				UI.logv("share preferences key=" + key + "/v=" + v);
-			} else if (key.equals("ProductName")) {
-				String v = prefs.getString(key, "Product");
+			} else if (key.equals(UI.PREF_KEY_PRODUCT)) {
+				String v = prefs.getString(key, null);
 				tvProductName.setText(v);
-			} else if (key.equals("WebSite")) {
-				String v = prefs.getString(key, "WebSite");
+			} else if (key.equals(UI.PREF_KEY_BTC_ADDR)) {
+				String v = prefs.getString(key, null);
+				tvShopBtcAddr.setText(v);
+			} else if (key.equals(UI.PREF_KEY_WEBSITE)) {
+				String v = prefs.getString(key, null);
 				uiState.setWebsite(v);
 				updateQrCodeWebSite();
-			} else if (key.equals("Price")) {
-				int v = Integer.valueOf(prefs.getString(key, "150"));
+			} else if (key.equals(UI.PREF_KEY_PRICE)) {
+				int v = Integer.valueOf(prefs.getString(key, null));
 				uiState.setPrice(v);
 				updatePriceQrCode();
 			} else {
@@ -520,8 +526,9 @@ public class BitcoinPosActivity extends Activity {
 		int width = 500;
 		int height = 500;
 		try {
-			int[] pixels = qrcodeEncoder.getPixels(uiState.getWebsite(),
-					dimention);
+			String url = uiState.getWebsite().startsWith("http") ? uiState
+					.getWebsite() : "http://" + uiState.getWebsite();
+			int[] pixels = qrcodeEncoder.getPixels(url, dimention);
 			Bitmap bitmap = Bitmap.createBitmap(width, height,
 					Bitmap.Config.ARGB_8888);
 			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
