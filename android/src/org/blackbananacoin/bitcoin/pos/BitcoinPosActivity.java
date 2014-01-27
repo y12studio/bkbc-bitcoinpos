@@ -21,18 +21,23 @@ import static com.google.common.base.Preconditions.checkState;
 import java.io.IOException;
 import java.util.Date;
 
+import org.blackbananacoin.bitcoin.pos.SquirrelTests.FSMEvent;
+import org.blackbananacoin.bitcoin.pos.SquirrelTests.FSMState;
+import org.blackbananacoin.bitcoin.pos.SquirrelTests.StateMachineSample;
 import org.blackbananacoin.common.bitcoin.Bitcoins;
 import org.blackbananacoin.common.json.BcApiSingleAddrTx;
 import org.blackbananacoin.common.json.BcApiSingleAddrTxItem;
 import org.blackbananacoin.common.json.BcApiSingleAddress;
 import org.blackbananacoin.common.json.BcApiSingleAddressBuilder;
 import org.blackbananacoin.common.json.TwdBit;
+import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.UntypedStateMachine;
+import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -477,6 +482,7 @@ public class BitcoinPosActivity extends Activity {
 			} else if (key.equals(UI.PREF_KEY_BTC_ADDR)) {
 				String v = prefs.getString(key, null);
 				tvShopBtcAddr.setText(v);
+				uiState.setBitcoinAddrShop(v);
 			} else if (key.equals(UI.PREF_KEY_WEBSITE)) {
 				String v = prefs.getString(key, null);
 				uiState.setWebsite(v);
@@ -734,6 +740,12 @@ public class BitcoinPosActivity extends Activity {
 		case 301:
 			testRunStop();
 			break;
+		case 901:
+			test901NetflixGraph();
+			break;
+		case 902:
+			test902HelloSquirrel();
+			break;
 
 		default:
 			break;
@@ -947,7 +959,7 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void handleKeyPadNum9() {
-		// testFun(205);
+		testFun(902);
 	}
 
 	private String getPrintBtc(BcApiSingleAddrTxItem item) {
@@ -1023,5 +1035,60 @@ public class BitcoinPosActivity extends Activity {
 				return r;
 			}
 		});
+	}
+
+	private void test902HelloSquirrel() {
+
+		// 3. Build State Transitions
+		UntypedStateMachineBuilder builder = StateMachineBuilderFactory
+				.create(StateMachineSample.class);
+		builder.externalTransition().from(FSMState.A).to(FSMState.B)
+				.on(FSMEvent.ToB).callMethod("fromAToB");
+
+		builder.externalTransition().from(FSMState.B).to(FSMState.C)
+				.on(FSMEvent.ToC).callMethod("fromBToC");
+
+		builder.onEntry(FSMState.B).callMethod("ontoB");
+
+		// 4. Use State Machine
+		UntypedStateMachine fsm = builder.newStateMachine(FSMState.A);
+		fsm.fire(FSMEvent.ToB, 10);
+
+		UI.logv("Current state is " + fsm.getCurrentState());
+		fsm.fire(FSMEvent.ToC, 4);
+
+		UI.logv("Current state is " + fsm.getCurrentState());
+
+	}
+
+	private void test901NetflixGraph() {
+		// NFGraphSpec pageSchema = new NFGraphSpec(
+		// new NFNodeSpec("Page",
+		// new NFPropertySpec("link", "Page", MULTIPLE | COMPACT)));
+		//
+		// OrdinalMap<String> pageOrdinals = new OrdinalMap<String>();
+		//
+		// NFBuildGraph buildGraph = new NFBuildGraph(pageSchema);
+		//
+		// int homeOrdinal = pageOrdinals.add("HOME");
+		// int aboutOrdinal = pageOrdinals.add("ABOUT");
+		// int faqOrdinal = pageOrdinals.add("FAQ");
+		//
+		// buildGraph.addConnection("Page", homeOrdinal, "link",aboutOrdinal);
+		// buildGraph.addConnection("Page", homeOrdinal, "link",faqOrdinal);
+		//
+		// NFCompressedGraph compressedGraph = buildGraph.compress();
+		//
+		// homeOrdinal = pageOrdinals.get("HOME");
+		// OrdinalIterator iter = compressedGraph.getConnectionIterator("Page",
+		// homeOrdinal, "link");
+		//
+		// int currentOrdinal = iter.nextOrdinal();
+		//
+		// while(currentOrdinal != OrdinalIterator.NO_MORE_ORDINALS) {
+		// UI.logd(pageOrdinals.get(currentOrdinal) + " link in The Home page");
+		// currentOrdinal = iter.nextOrdinal();
+		// }
+
 	}
 }
