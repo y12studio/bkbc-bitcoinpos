@@ -1,0 +1,24 @@
+digraph {
+compound=true;
+subgraph cluster_StateMachine {
+label="StateMachineUi";
+TxTimer [label="TxTimer66"];
+AlertInfo [label="AlertInfo"];
+TwdAdjust [label="TwdAdjust"];
+Home [label="Home"];
+PrefEdit [label="PrefEdit"];
+TxCheck [label="TxCheck"];
+
+TxTimer -> TxCheck [ label="Stop1"];
+TxTimer -> AlertInfo [ label="ValueError"];
+AlertInfo -> TwdAdjust [ label="ValueOk"];
+AlertInfo -> Home [ label="Back"];
+AlertInfo -> TxCheck [ label="Back"];
+TwdAdjust -> TxCheck [ label="Close"];
+TwdAdjust -> Home [ label="Back"];
+TwdAdjust -> AlertInfo [ label="ValueError"];
+Home -> TwdAdjust [ label="Open"];
+Home -> PrefEdit [ label="Open"];
+PrefEdit -> Home [ label="Back"];
+TxCheck -> Home [ label="Stop"];
+TxCheck -> TxTimer [ label="Start"];}}

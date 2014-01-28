@@ -21,11 +21,13 @@ import static com.google.common.base.Preconditions.checkState;
 import java.io.IOException;
 import java.util.Date;
 
-import org.blackbananacoin.bitcoin.pos.SquirrelTests.FSMEvent;
-import org.blackbananacoin.bitcoin.pos.SquirrelTests.FSMState;
-import org.blackbananacoin.bitcoin.pos.SquirrelTests.StateMachineSample;
 import org.blackbananacoin.bitcoinpos.lib.FSMBitcoinPos;
+import org.blackbananacoin.bitcoinpos.lib.FSMBitcoinPos.FsmEvent;
+import org.blackbananacoin.bitcoinpos.lib.FSMBitcoinPos.FsmState;
 import org.blackbananacoin.bitcoinpos.lib.FSMBitcoinPos.StateMachineUi;
+import org.blackbananacoin.bitcoinpos.lib.SquirrelTests.FSMEvent;
+import org.blackbananacoin.bitcoinpos.lib.SquirrelTests.FSMState;
+import org.blackbananacoin.bitcoinpos.lib.SquirrelTests.StateMachineSample;
 import org.blackbananacoin.common.bitcoin.Bitcoins;
 import org.blackbananacoin.common.json.BcApiSingleAddrTx;
 import org.blackbananacoin.common.json.BcApiSingleAddrTxItem;
@@ -132,9 +134,6 @@ public class BitcoinPosActivity extends Activity {
 			}
 		}
 	};
-
-	@Deprecated
-	private int lastNtx = 0;
 
 	private UiState uiState;
 
@@ -321,6 +320,7 @@ public class BitcoinPosActivity extends Activity {
 
 	private TextView tvAmount;
 	private TextView tvBcTxCheckAddr;
+	private TextView tvHelpBar;
 	private TextView tvShopBtcAddr;
 	private TextView tvBcTxCheckHr;
 	private TextView tvBcTxCheckHr2;
@@ -333,6 +333,7 @@ public class BitcoinPosActivity extends Activity {
 	private TextView tvUpdateStatus;
 	private View lyBkbcEx;
 	private View lyBcApiTxCheck;
+	private View lyHomePriceQr;
 	private View lyBcApiTxResult2;
 	private View lyMidBitcoinCat;
 
@@ -358,6 +359,7 @@ public class BitcoinPosActivity extends Activity {
 		tvProductName = (TextView) findViewById(R.id.tvProductName);
 
 		lyBcApiTxCheck = findViewById(R.id.lyBcTxCheckInfo);
+		lyHomePriceQr = findViewById(R.id.lyHomePriceQr);
 		lyBcApiTxResult2 = findViewById(R.id.lyBcTxResult2);
 		lyMidBitcoinCat = findViewById(R.id.lyMidBitcoinCat);
 		lyBkbcEx = findViewById(R.id.lyBkbcExInfo);
@@ -368,6 +370,7 @@ public class BitcoinPosActivity extends Activity {
 		tvBcTxCheckAmount = (TextView) findViewById(R.id.tvBcTxAmount);
 		tvBcTxCheckAmount2 = (TextView) findViewById(R.id.tvBcTxAmount2);
 		tvBcTxCheckAddr = (TextView) findViewById(R.id.tvBcTxAddr);
+		tvHelpBar = (TextView) findViewById(R.id.tvHelpBar);
 		tvBcTxCheckHr = (TextView) findViewById(R.id.tvBcTxHr);
 		tvBcTxCheckHr2 = (TextView) findViewById(R.id.tvBcTxHr2);
 		tvBcTxCheckAddr2 = (TextView) findViewById(R.id.tvBcTxAddr2);
@@ -655,8 +658,6 @@ public class BitcoinPosActivity extends Activity {
 
 	private Runnable runForBcTxCheck;
 
-	private StateMachineUi stateMachine;
-
 	/**
 	 * Schedules a call to hide() in [delay] milliseconds, canceling any
 	 * previously scheduled calls.
@@ -707,6 +708,9 @@ public class BitcoinPosActivity extends Activity {
 		case KeyEvent.KEYCODE_NUMPAD_ENTER:
 			handleKeyPadEnter();
 			break;
+		case KeyEvent.KEYCODE_NUMPAD_MULTIPLY:
+			handleKeyPadMultiply();
+			break;
 		default:
 			UI.logv("UnHandle kcode : " + keyCode);
 			break;
@@ -714,8 +718,53 @@ public class BitcoinPosActivity extends Activity {
 		return true;
 	}
 
+	private void handleKeyPadMultiply() {
+		// where state ?
+		FsmState cs = uiState.getStateMachine().getCurrentState();
+		UI.logv("Key* Current State=" + cs.toString());
+		switch (cs) {
+		case Home:
+			lyHomePriceQr.setVisibility(View.GONE);
+			uiState.getStateMachine().fire(FsmEvent.OpenTwdAdjust);
+			break;
+		default:
+			break;
+		}
+
+		handleHelpBar();
+
+	}
+
+	private void handleHelpBar() {
+		// where state ?
+		FsmState cs = uiState.getStateMachine().getCurrentState();
+		switch (cs) {
+		case Home:
+			tvHelpBar.setText("* 輸入價格");
+			break;
+		case TwdAdjust:
+			tvHelpBar.setText("Enter 完成輸入");
+			break;
+		default:
+			break;
+		}
+
+	}
+
 	private void handleKeyPadEnter() {
-		startTxCheck();
+		// startTxCheck();
+
+		FsmState cs = uiState.getStateMachine().getCurrentState();
+		switch (cs) {
+		case TwdAdjust:
+			lyHomePriceQr.setVisibility(View.VISIBLE);
+			uiState.getStateMachine().fire(FsmEvent.BackHome);
+			break;
+		default:
+			break;
+		}
+
+		handleHelpBar();
 	}
 
 	private void handleKeyPadNum8() {
@@ -761,8 +810,9 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void test207TurnOnPriceInput() {
-		//stateMachine.fire(FsmEvent.TurnOnEditPrice);
-		UI.logv("FSM state=" + stateMachine.getCurrentState());
+		// stateMachine.fire(FsmEvent.TurnOnEditPrice);
+		StateMachineUi sm = uiState.getStateMachine();
+		UI.logv("FSM state=" + sm.getCurrentState());
 	}
 
 	private void testBcApiDownload() {
@@ -1106,6 +1156,8 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void initStateMachine() {
-		stateMachine = FSMBitcoinPos.createStateMachine();
+		StateMachineUi sm = FSMBitcoinPos.createStateMachine();
+		uiState.setStateMachine(sm);
+		handleHelpBar();
 	}
 }

@@ -15,6 +15,7 @@
  */
 package org.blackbananacoin.bitcoin.pos;
 
+import org.blackbananacoin.bitcoinpos.lib.FSMBitcoinPos.StateMachineUi;
 import org.blackbananacoin.common.json.TwdBit;
 
 public class UiState {
@@ -29,6 +30,8 @@ public class UiState {
 	private int timeBcTxVerifyMaxCount = UI.TimeBcTxMaxCount;
 	private int price;
 	private TwdBit lastTwdBit = new TwdBit();
+	
+	private StateMachineUi stateMachine;
 
 	private int secondsForTxCheck = UI.TimeForTxCheck;
 
@@ -143,6 +146,14 @@ public class UiState {
 
 	public void setWebsite(String website) {
 		this.website = website;
+	}
+
+	public StateMachineUi getStateMachine() {
+		return stateMachine;
+	}
+
+	public void setStateMachine(StateMachineUi stateMachine) {
+		this.stateMachine = stateMachine;
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.blackbananacoin.bitcoin.pos;
+package org.blackbananacoin.bitcoinpos.lib;
 
 import java.util.Map;
 
@@ -19,7 +19,7 @@ public class SquirrelTests {
 
 	// 2. Define State Machine Class
 	@StateMachineParameters(stateType = FSMState.class, eventType = FSMEvent.class, contextType = Integer.class)
-	static class StateMachineSample extends AbstractUntypedStateMachine {
+	public static class StateMachineSample extends AbstractUntypedStateMachine {
 		protected StateMachineSample(ImmutableUntypedState initialState,
 				Map<Object, ImmutableUntypedState> states) {
 			super(initialState, states);
@@ -27,21 +27,21 @@ public class SquirrelTests {
 
 		protected void fromAToB(FSMState from, FSMState to, FSMEvent event,
 				Integer context) {
-			UI.logv("Transition from '" + from + "' to '" + to
+			System.out.println("Transition from '" + from + "' to '" + to
 					+ "' on event '" + event + "' with context '" + context
 					+ "'.");
 		}
 		
 		protected void fromBToC(FSMState from, FSMState to, FSMEvent event,
 				Integer context) {
-			UI.logv("Transition from '" + from + "' to '" + to
+			System.out.println("Transition from '" + from + "' to '" + to
 					+ "' on event '" + event + "' with context '" + context
 					+ "'.");
 		}
 
 		protected void ontoB(FSMState from, FSMState to, FSMEvent event,
 				Integer context) {
-			UI.logv("Entry State \'" + to + "\'.");
+			System.out.println("Entry State \'" + to + "\'.");
 		}
 	}
 
