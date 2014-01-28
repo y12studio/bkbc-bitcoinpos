@@ -24,6 +24,8 @@ import java.util.Date;
 import org.blackbananacoin.bitcoin.pos.SquirrelTests.FSMEvent;
 import org.blackbananacoin.bitcoin.pos.SquirrelTests.FSMState;
 import org.blackbananacoin.bitcoin.pos.SquirrelTests.StateMachineSample;
+import org.blackbananacoin.bitcoinpos.lib.FSMBitcoinPos;
+import org.blackbananacoin.bitcoinpos.lib.FSMBitcoinPos.StateMachineUi;
 import org.blackbananacoin.common.bitcoin.Bitcoins;
 import org.blackbananacoin.common.json.BcApiSingleAddrTx;
 import org.blackbananacoin.common.json.BcApiSingleAddrTxItem;
@@ -379,6 +381,7 @@ public class BitcoinPosActivity extends Activity {
 		imgQrWebSite = (ImageView) findViewById(R.id.imgQrWebSite);
 
 		initPrefsValue(prefs);
+		initStateMachine();
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -652,6 +655,8 @@ public class BitcoinPosActivity extends Activity {
 
 	private Runnable runForBcTxCheck;
 
+	private StateMachineUi stateMachine;
+
 	/**
 	 * Schedules a call to hide() in [delay] milliseconds, canceling any
 	 * previously scheduled calls.
@@ -737,6 +742,9 @@ public class BitcoinPosActivity extends Activity {
 		case 206:
 			testTxCheckRunDownloadError();
 			break;
+		case 207:
+			test207TurnOnPriceInput();
+			break;
 		case 301:
 			testRunStop();
 			break;
@@ -750,6 +758,11 @@ public class BitcoinPosActivity extends Activity {
 		default:
 			break;
 		}
+	}
+
+	private void test207TurnOnPriceInput() {
+		//stateMachine.fire(FsmEvent.TurnOnEditPrice);
+		UI.logv("FSM state=" + stateMachine.getCurrentState());
 	}
 
 	private void testBcApiDownload() {
@@ -959,7 +972,7 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void handleKeyPadNum9() {
-		testFun(902);
+		testFun(207);
 	}
 
 	private String getPrintBtc(BcApiSingleAddrTxItem item) {
@@ -1090,5 +1103,9 @@ public class BitcoinPosActivity extends Activity {
 		// currentOrdinal = iter.nextOrdinal();
 		// }
 
+	}
+
+	private void initStateMachine() {
+		stateMachine = FSMBitcoinPos.createStateMachine();
 	}
 }

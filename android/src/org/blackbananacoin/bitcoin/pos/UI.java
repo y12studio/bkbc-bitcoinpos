@@ -65,4 +65,5 @@ public class UI {
 		Log.i(ACTIVITY_TAG, log);
 	}
 
+	
 }
