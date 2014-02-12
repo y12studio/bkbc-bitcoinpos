@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <EditTextPreference android:title="店名" android:key="ShopName" android:defaultValue="@string/pref_shop_name"/>
     <EditTextPreference android:title="預設產品名稱" android:key="ProductName" android:defaultValue="@string/pref_product_name"/>
-    <EditTextPreference android:title="預設價格" android:key="Price" android:inputType="number" android:defaultValue="@string/pref_price"/>
+    <EditTextPreference android:title="預設價格" android:key="Price" android:inputType="number"/>
     <EditTextPreference android:title="收款地址" android:key="BitconAddr" android:defaultValue="@string/pref_website"/>
     <EditTextPreference android:title="網址" android:key="WebSite" android:defaultValue="@string/pref_shop_btc_addr_motor1"/>
 </PreferenceScreen>

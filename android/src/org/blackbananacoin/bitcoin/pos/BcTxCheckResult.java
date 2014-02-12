@@ -8,6 +8,9 @@ public class BcTxCheckResult {
 	private boolean foundDiff;
 	private int checkCount;
 	
+	/**
+	 * 
+	 */
 	private boolean downloadError;
 	
 	private BcApiSingleAddrTx lastBcApiTx;

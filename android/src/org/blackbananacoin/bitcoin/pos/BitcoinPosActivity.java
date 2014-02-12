@@ -464,13 +464,18 @@ public class BitcoinPosActivity extends Activity {
 	}
 
 	private void initPrefsValue(SharedPreferences prefs) {
-		tvShopName.setText(prefs.getString(UI.PREF_KEY_SHOP, null));
-		tvProductName.setText(prefs.getString(UI.PREF_KEY_PRODUCT, null));
-		int price = Integer.valueOf(prefs.getString(UI.PREF_KEY_PRICE, null));
+		tvShopName.setText(prefs.getString(UI.PREF_KEY_SHOP, getResources()
+				.getString(R.string.pref_shop_name)));
+		tvProductName.setText(prefs.getString(UI.PREF_KEY_PRODUCT,
+				getResources().getString(R.string.pref_product_name)));
+		int price = Integer.valueOf(prefs.getString(UI.PREF_KEY_PRICE,
+				getResources().getString(R.string.pref_price)));
 		uiState.setPrice(price);
-		uiState.setWebsite(prefs.getString(UI.PREF_KEY_WEBSITE, null));
+		uiState.setWebsite(prefs.getString(UI.PREF_KEY_WEBSITE, getResources()
+				.getString(R.string.pref_website)));
 
-		String bAddr = prefs.getString(UI.PREF_KEY_BTC_ADDR, null);
+		String bAddr = prefs.getString(UI.PREF_KEY_BTC_ADDR, getResources()
+				.getString(R.string.pref_shop_btc_addr_motor1));
 		uiState.setBitcoinAddrShop(bAddr);
 		tvShopBtcAddr.setText(bAddr);
 		UI.log("[InitPref]" + uiState.toString());
